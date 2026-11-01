@@ -1,0 +1,66 @@
+{
+ "version": 1,
+ "updated_at": 1793118391,
+ "channels": {
+  "open-design": {
+   "enabled": true,
+   "hidden": false,
+   "note": "默认渠道（HUB_MODEL_CHANNEL）"
+  },
+  "ollama": {
+   "enabled": true,
+   "hidden": false,
+   "note": "决策模型 /v1/systemone（clef:27b，input-only 计费）"
+  }
+ },
+ "models": {
+  "open-design": {
+   "claude-haiku-5.5": false,
+   "deepseek-v4.1-flash": false,
+   "glm-5.3-flashx": true
+  }
+ },
+ "suspended": {},
+ "errors": {
+  "acked": []
+ },
+ "egress": {
+  "proxy_url": "",
+  "channel_overrides": {},
+  "updated_at": 1792928136
+ },
+ "budgets": {
+  "global": {
+   "amount": null,
+   "unit": "CNY",
+   "period": "day"
+  },
+  "items": [
+   {
+    "key": "open-design",
+    "label": "OpenDesign",
+    "amount": null,
+    "unit": "CNY",
+    "period": "day"
+   },
+   {
+    "key": "ollama",
+    "label": "Ollama",
+    "amount": null,
+    "unit": "CNY",
+    "period": "day"
+   }
+  ]
+ },
+ "routing": {
+  "timeout_s": 180.0,
+  "max_retries": 0,
+  "sticky_ttl_s": 43200,
+  "rate_limit_rps": 100,
+  "rate_limit_burst": 150
+ },
+ "prompt_opt": {
+  "mode": "enforce",
+  "updated_at": 1793018928
+ }
+}

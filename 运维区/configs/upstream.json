@@ -1,0 +1,21 @@
+{
+  "base_url": "http://127.0.0.1:9",
+  "fallback_url": "http://127.0.0.1:9",
+  "probe_interval_s": 30,
+  "probe_timeout_s": 4,
+  "probe_path": "/health",
+  "prompt_opt": "shadow",
+  "model_upstream": "http://127.0.0.1:9/v1",
+  "model_channel": "open-design",
+  "ledger_mode": "local",
+  "ledger": {
+    "backend": "sqlite",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "user": "neo_ledger",
+    "database": "hub_neo",
+    "table": "usage",
+    "password_key": "neo_ledger_password"
+  },
+  "token_source": {}
+}

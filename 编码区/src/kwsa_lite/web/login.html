@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<title>KWSA LITE · 面板登录</title>
+<style>
+  :root{
+    --surface-newsprint-base:#cec9bc;
+    --surface-paper-high:#dad5c8;
+    --surface-steel-plate:#23241f;
+    --surface-steel-deep:#171814;
+    --ink-primary:#11120f;
+    --ink-inverse:#e3dfd4;
+    --ink-secondary:#56544c;
+    --surface-steel-raised:#303129;
+    --border-silver-filigree:#9d9a90;
+    --border-steel-line:#4a4b43;
+    --ink-inverse-2:#d7d2c6;
+    --silver:#9d9a90;
+    --hair:#9d9a90;
+    --line:#b3aea1;
+    --paper:var(--surface-newsprint-base);
+    --paper-hi:var(--surface-paper-high);
+    --ink:var(--ink-primary);
+    --ink-2:#393834;
+    --mute:var(--ink-secondary);
+    --font-serif-editorial:"Bodoni MT","Didot","Playfair Display","Times New Roman","Songti SC","STSong","SimSun",serif;
+    --font-sans-industrial:"Bahnschrift","Franklin Gothic Medium","Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;
+    --font-mono-telemetry:"Cascadia Mono","JetBrains Mono",Consolas,"Microsoft YaHei","PingFang SC",monospace;
+    --serif:var(--font-serif-editorial);
+    --sans:var(--font-sans-industrial);
+    --mono:var(--font-mono-telemetry);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.35), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.022) 0 1px, transparent 1px 4px),
+      var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:13px;
+    line-height:1.4;
+    padding:20px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-synthesis:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  .gate{width:min(1180px,100%);border:2px solid var(--ink);background:rgba(255,255,255,.1)}
+  .top{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:18px 22px 14px;border-bottom:1px solid var(--ink)}
+  .kicker{font:700 11px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+  h1{font-family:var(--serif);font-weight:700;font-size:clamp(48px,6vw,72px);line-height:.9;letter-spacing:-.015em;margin:7px 0 5px}
+  h1 span{font-style:italic}
+  .sub{font:400 12px/1.5 var(--mono);letter-spacing:.06em;color:var(--ink-2);margin:0;text-transform:uppercase}
+  .stamp{min-width:238px;border:1px solid var(--ink);flex:none}
+  .stamp-row{display:flex;justify-content:space-between;gap:12px;padding:5px 8px;border-bottom:1px solid var(--line)}
+  .stamp-row:last-child{border-bottom:0}
+  .stamp-row span{font:700 11px/1.3 var(--mono);letter-spacing:.1em;color:var(--mute)}
+  .stamp-row b{font:700 12px/1.3 var(--mono);letter-spacing:.03em}
+  .stamp-row b.solid{background:var(--ink);color:var(--paper-hi);padding:1px 5px}
+  .body{display:grid;grid-template-columns:1.15fr .85fr;min-height:430px}
+  .brief{padding:26px 28px;border-right:1px solid var(--ink);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+  .brief .no{font:700 11px/1.2 var(--mono);letter-spacing:.12em;color:var(--mute)}
+  .brief h2{font-family:var(--serif);font-size:30px;line-height:1.08;letter-spacing:-.01em;margin:10px 0 8px;max-width:15em}
+  .brief p{font-size:13px;line-height:1.6;color:var(--ink-2);margin:0;max-width:34em}
+  .mono{font-family:var(--mono)}
+  .brief dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;border-top:1px solid var(--hair);padding-top:12px}
+  .brief dt{font:700 11px/1.4 var(--mono);letter-spacing:.08em;color:var(--mute)}
+  .brief dd{font:400 12px/1.4 var(--mono);margin:0;color:var(--ink-2)}
+  .form-wrap{padding:26px 28px;display:flex;flex-direction:column;justify-content:center;background:var(--surface-steel-plate);color:var(--ink-inverse)}
+  .form-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:1px solid var(--border-steel-line);padding-bottom:8px;margin-bottom:18px}
+  .form-head h2{font:700 18px/1.15 var(--serif);letter-spacing:-.01em;margin:0}
+  .form-head span{font:700 11px/1.2 var(--mono);letter-spacing:.12em;color:var(--border-silver-filigree)}
+  label{display:block;font:700 12px/1.2 var(--sans);letter-spacing:.04em;color:var(--ink-inverse-2);margin:0 0 6px}
+  .req{font:700 11px/1 var(--mono);color:var(--border-silver-filigree);margin-left:6px}
+  input{
+    width:100%;height:42px;border:1px solid var(--border-silver-filigree);background:var(--surface-steel-deep);color:var(--ink-inverse);
+    padding:0 11px;font:400 13px/1 var(--mono);letter-spacing:.02em;border-radius:0;outline:none;
+  }
+  input:focus{border-color:var(--ink-inverse);box-shadow:0 0 0 1px var(--ink-inverse)}
+  input:disabled{opacity:.55}
+  .field{margin-bottom:14px}
+  button{
+    width:100%;min-height:44px;border:1px solid var(--ink-inverse);background:var(--ink-inverse);color:var(--ink-primary);
+    font:700 13px/1 var(--sans);letter-spacing:.06em;border-radius:0;cursor:pointer;
+    transition:background .15s,color .15s,transform .08s;
+  }
+  button:hover{background:transparent;color:var(--ink-inverse)}
+  button:active{transform:translateY(1px)}
+  button:disabled{cursor:wait;opacity:.6}
+  button:focus-visible{outline:2px solid var(--ink-inverse);outline-offset:2px}
+  .msg{min-height:34px;margin:12px 0 0;font:700 12px/1.45 var(--mono);color:var(--ink-inverse-2);letter-spacing:.02em}
+  .msg[data-state="err"]{color:var(--ink-inverse);background:var(--ink-primary);padding:7px 8px;border-left:3px solid var(--ink-inverse)}
+  .msg[data-state="ok"]{color:var(--ink-primary);background:var(--ink-inverse);padding:7px 8px}
+  .foot{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--ink);padding:7px 10px;font:700 11px/1.2 var(--mono);letter-spacing:.06em;color:var(--mute)}
+  .foot .dot{width:6px;height:6px;background:var(--ink);display:inline-block;margin-right:6px;vertical-align:0}
+  @media (max-width:820px){
+    body{padding:12px;align-items:flex-start}
+    .top{flex-direction:column;align-items:flex-start}
+    .stamp{min-width:0;width:100%}
+    .body{grid-template-columns:1fr}
+    .brief{border-right:0;border-bottom:1px solid var(--ink)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<main class="gate">
+  <div class="top">
+    <div>
+      <div class="kicker">KWSA / Gateway Engineering · Lite</div>
+      <h1>KWSA <span>LITE</span></h1>
+      <p class="sub">Authenticated console · panel access</p>
+    </div>
+    <div class="stamp" aria-label="闸门信息">
+      <div class="stamp-row"><span>ACCESS</span><b class="solid">LOCKED</b></div>
+      <div class="stamp-row"><span>SCOPE</span><b>PANEL / API</b></div>
+      <div class="stamp-row"><span>MODE</span><b>SESSION</b></div>
+    </div>
+  </div>
+
+  <div class="body">
+    <section class="brief" aria-label="访问说明">
+      <div>
+        <div class="no">GATE / 00</div>
+        <h2>先验明身份，<br>再读网关账目。</h2>
+        <p>此入口保护状态台、渠道控制与用量账本。数据面 <span class="mono">/v1/*</span> 使用独立 API Key，不使用面板会话。</p>
+      </div>
+      <dl>
+        <dt>会话</dt><dd>HttpOnly · SameSite=Strict · 内存态</dd>
+        <dt>口令</dt><dd>scrypt 哈希 · 不落明文</dd>
+        <dt>熔断</dt><dd>同 IP 连续失败 5 次触发退避</dd>
+        <dt>绑定</dt><dd>默认回环；内网需显式登录</dd>
+      </dl>
+    </section>
+
+    <section class="form-wrap" aria-label="登录表单">
+      <div class="form-head">
+        <h2>面板闸门</h2>
+        <span>ADMIN ONLY</span>
+      </div>
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="username">账号<span class="req" aria-hidden="true">REQUIRED</span></label>
+          <input id="username" name="username" type="text" autocomplete="username"
+                 maxlength="64" required autofocus spellcheck="false">
+        </div>
+        <div class="field">
+          <label for="password">密码<span class="req" aria-hidden="true">REQUIRED</span></label>
+          <input id="password" name="password" type="password" autocomplete="current-password"
+                 maxlength="256" required>
+        </div>
+        <button id="submitBtn" type="submit">验证并进入 / UNLOCK</button>
+        <p class="msg" id="msg" role="status" aria-live="polite">输入面板凭据。首次部署用 --set-password 设置密码，或使用启动时的一次性密码。</p>
+      </form>
+    </section>
+  </div>
+
+  <div class="foot">
+    <span><i class="dot"></i>ISSUE 001 / ACCESS GATE</span>
+    <span>NO PUBLIC SIGN-UP · SINGLE ADMIN</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var form = document.getElementById("loginForm");
+  var user = document.getElementById("username");
+  var pass = document.getElementById("password");
+  var btn = document.getElementById("submitBtn");
+  var msg = document.getElementById("msg");
+
+  function setMsg(text, state){
+    msg.textContent = text || "";
+    msg.setAttribute("data-state", state || "");
+  }
+  function busy(on){
+    btn.disabled = !!on;
+    user.disabled = !!on;
+    pass.disabled = !!on;
+    btn.textContent = on ? "验证中 / CHECKING…" : "验证并进入 / UNLOCK";
+  }
+
+  fetch("/api/session", {cache: "no-store"})
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if(data && data.authenticated){ window.location.replace("/"); }
+      else if(data && data.auth_enabled === false){
+        setMsg("面板认证未启用；仅回环开发模式可直接访问。", "err");
+      }
+    })
+    .catch(function(){});
+
+  form.addEventListener("submit", function(event){
+    event.preventDefault();
+    var name = user.value.trim();
+    if(!name || !pass.value){
+      setMsg("账号与密码均不能为空。", "err");
+      (name ? pass : user).focus();
+      return;
+    }
+    busy(true);
+    setMsg("验证中 / CHECKING…", "");
+    fetch("/api/login", {
+      method: "POST",
+      cache: "no-store",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({username: name, password: pass.value})
+    }).then(function(res){
+      return res.text().then(function(text){
+        var data = {};
+        try { data = JSON.parse(text); } catch(e){ data = {}; }
+        if(!res.ok){
+          var error = data.error || {};
+          var wait = error.retry_after || res.headers.get("retry-after");
+          var suffix = wait ? " · " + wait + "s 后可再试" : "";
+          throw new Error((error.message || ("HTTP " + res.status)) + suffix);
+        }
+        return data;
+      });
+    }).then(function(){
+      window.location.replace("/");
+    }).catch(function(err){
+      pass.value = "";
+      setMsg((err && err.message) || "网络失败", "err");
+      pass.focus();
+    }).finally(function(){ busy(false); });
+  });
+})();
+</script>
+</body>
+</html>

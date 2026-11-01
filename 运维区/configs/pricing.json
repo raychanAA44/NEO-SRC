@@ -1,0 +1,1993 @@
+{
+  "schema": 1,
+  "unit": "USD_per_mtok",
+  "usd_cny": 6.72,
+  "_meta": {
+    "updated_at": "2026-10-25T00:00:00",
+    "updated_by": "pricing-policy",
+    "note": "渠道化价目；in/cache/out 三档齐全。2026-10-25 起，官方未公布 cache 的行按 cache=in 降级并标 cache_source=input_fallback；决策模型按官方 input-only 口径记 out=0 并标 out_source=official_input_only。",
+    "pricing_policy": {
+      "version": 1,
+      "cache_missing": "input_fallback",
+      "cache_missing_note": "官方价目未公布 cached input 时，cache 按同渠道同模型 in 计；行内标 cache_source=input_fallback 并保留 cache_note，不猜折扣、不借其它模型价。",
+      "input_only_models": "official_input_only_zero",
+      "input_only_note": "官方明确按输入 token 计费的决策模型（/v1/systemone），output_tokens 为 0；out 记 0 并标 out_source=official_input_only，不代表免费牌价。",
+      "approved_at": "2026-10-25",
+      "approved_by": "user",
+      "source_url": "https://ollama.com/pricing",
+      "source_doc": "https://docs.ollama.com/capabilities/decision"
+    },
+    "source": {
+      "url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+      "read_at": "2026-10-17",
+      "cross_check": "examples/custom_prices.json 的 open-design 段（2026-10-19 归档）",
+      "note": "旧平表按 6.72 折算迁移；单价与旧仓逐项一致。"
+    },
+    "legacy_migration": {
+      "source": "examples/custom_prices.json",
+      "source_sha256": "89be1f358366d04824d183b5ec137125333778b97c72b6e5a9b43f71c3fcc435",
+      "migrated_at": "2026-10-24T23:59:35",
+      "channels": [
+        "ollama",
+        "ollama-v2",
+        "tokenharbor",
+        "opencode"
+      ],
+      "skipped_rows": {},
+      "policy_resolved_rows": {
+        "ollama": [
+          {
+            "model": "clef:27b",
+            "missing": [
+              "cache",
+              "out"
+            ],
+            "resolution": {
+              "cache": "in:0.24 (input_fallback)",
+              "out": "0 (official_input_only)"
+            },
+            "resolved_at": "2026-10-25"
+          },
+          {
+            "model": "nemotron-3-nano:30b",
+            "missing": [
+              "cache"
+            ],
+            "resolution": {
+              "cache": "in:0.06 (input_fallback)"
+            },
+            "resolved_at": "2026-10-25"
+          },
+          {
+            "model": "mistral-large-3:675b",
+            "missing": [
+              "cache"
+            ],
+            "resolution": {
+              "cache": "in:0.5 (input_fallback)"
+            },
+            "resolved_at": "2026-10-25"
+          }
+        ]
+      }
+    }
+  },
+  "upstreams": {
+    "open-design": {
+      "billing_kind": "usage",
+      "discount": 1.0,
+      "peak_rule": null,
+      "models": {
+        "claude-haiku-5.5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 0.1,
+          "out": 0.5,
+          "cache": 0.01
+        },
+        "deepseek-v4-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.44,
+          "out": 1.32,
+          "cache": 0.014
+        },
+        "deepseek-v4-flash-vision-exp": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.44,
+          "out": 1.32,
+          "cache": 0.014
+        },
+        "deepseek-v4-pro": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.32,
+          "out": 3.96,
+          "cache": 0.044
+        },
+        "deepseek-v4.1-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.006
+        },
+        "glm-5.3-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.075,
+          "out": 0.25,
+          "cache": 0.015
+        },
+        "glm-5.3-flashx": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.37,
+          "out": 1.25,
+          "cache": 0.075
+        },
+        "gpt-6-luna": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 0.1,
+          "out": 0.5,
+          "cache": 0.01
+        },
+        "hy4-preview": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.834,
+          "out": 2.501,
+          "cache": 0.042
+        },
+        "kimi-k2.7-code": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.95,
+          "out": 4.0,
+          "cache": 0.19
+        },
+        "mimo-v2.6-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.14,
+          "out": 0.28,
+          "cache": 0.0028
+        },
+        "mimo-v2.6-pro": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.435,
+          "out": 0.87,
+          "cache": 0.0036
+        },
+        "minimax-m3.1-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.6,
+          "cache": 0.015
+        },
+        "claude-fable-5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 10.0,
+          "out": 50.0,
+          "cache": 1.0
+        },
+        "claude-fable-5.1": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 10.0,
+          "out": 50.0,
+          "cache": 0.25
+        },
+        "claude-opus-4.8": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 5.0,
+          "out": 25.0,
+          "cache": 0.5
+        },
+        "claude-opus-5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 5.0,
+          "out": 25.0,
+          "cache": 0.5
+        },
+        "claude-opus-5.5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 4.0,
+          "out": 20.0,
+          "cache": 0.2
+        },
+        "claude-sonnet-5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.2
+        },
+        "claude-sonnet-5.5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.2
+        },
+        "gemini-3.7-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.75,
+          "out": 3.75,
+          "cache": 0.075
+        },
+        "gemini-3.8-flash": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.75,
+          "out": 3.75,
+          "cache": 0.075
+        },
+        "gemini-4-argon": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.1
+        },
+        "glm-5.2": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.4,
+          "out": 4.4,
+          "cache": 0.26
+        },
+        "gpt-5.6-luna": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 0.2,
+          "out": 1.2,
+          "cache": 0.02
+        },
+        "gpt-5.6-sol": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 4.0,
+          "out": 20.0,
+          "cache": 0.4
+        },
+        "gpt-5.6-terra": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 2.0,
+          "out": 12.0,
+          "cache": 0.2
+        },
+        "gpt-6.1-sol": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.1
+        },
+        "gpt-6-astra": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 10.0,
+          "out": 50.0,
+          "cache": 1.0
+        },
+        "gpt-6-sol": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。　该模型官方另设长上下文阶梯价，本表按基础档计价。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.2
+        },
+        "grok-4.5": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 6.0,
+          "cache": 0.5
+        },
+        "grok-4.6": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 6.0,
+          "cache": 0.5
+        },
+        "grok-4.7": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 6.0,
+          "cache": 0.5
+        },
+        "kimi-k3": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 3.0,
+          "out": 15.0,
+          "cache": 0.3
+        },
+        "kimi-k3.1-pro": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.2
+        },
+        "muse-spark-1.3": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.25,
+          "out": 4.25,
+          "cache": 0.15
+        },
+        "muse-wonder": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 4.0,
+          "out": 20.0,
+          "cache": 0.2
+        },
+        "qwen3.7-max": {
+          "source": "官方价目页 https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "source_url": "https://amr-api.open-design.ai/api/v1/public/model-prices",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.5,
+          "out": 7.5,
+          "cache": 0.5
+        }
+      }
+    },
+    "ollama": {
+      "peak_rule": {
+        "kind": "utc_weekday_window",
+        "start_hour": 12,
+        "end_hour": 18
+      },
+      "peak_rule_note": "官方原文：Off-peak pricing apply outside 12:00 and 18:00 UTC on weekdays and all day on weekends —— 即**工作日 12:00–18:00 UTC 为峰**，其余（含周末全天）为谷。⚠️ 与 trae 的谷峰规则**完全不同**（trae 按本地时区 22:00–08:00 为谷），不可复用。",
+      "updated_at": "2026-10-18 08:30",
+      "discount": 1.0,
+      "display_discount": 0.334,
+      "display_discount_note": "纯展示（不计费）：账按官方牌价落定，此值为实付折扣率",
+      "models": {
+        "gemma4:31b": {
+          "source": "Ollama 官方 pricing 页 Model pricing 表",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-16",
+          "price_note": "Ollama 官方 per-token 价（USD/百万 token），与 hub 口径一致。调用名带 tag（如 `gemma4:31b`）而价目表给基名（`gemma4`）⇒ 按**剥掉 `:tag` 后的基名**匹配价目（推断：同基名同价）。　由离线文档同步：事实源 = Ollama-计费体系-总纲-20261016.md（2026-10-16，离线文档，运行时不再打上游取价）。",
+          "in": 0.14,
+          "cache": 0.05,
+          "out": 0.4
+        },
+        "glm-5.2": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.4,
+          "out": 4.4,
+          "cache": 0.26
+        },
+        "glm-5.3": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.4,
+          "out": 4.4,
+          "cache": 0.26
+        },
+        "kimi-k2.6": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.95,
+          "out": 4.0,
+          "cache": 0.16
+        },
+        "kimi-k3": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 3.0,
+          "out": 15.0,
+          "cache": 0.3
+        },
+        "gpt-oss:120b": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.6,
+          "cache": 0.014
+        },
+        "minimax-m2.7": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.06
+        },
+        "nemotron-3-ultra": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.1,
+          "out": 3.0,
+          "cache": 0.1
+        },
+        "muse-spark-open": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.25,
+          "out": 4.25,
+          "cache": 0.15
+        },
+        "glm-5.3-flash": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.5,
+          "cache": 0.03
+        },
+        "nemotron-3-super": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.015,
+          "out": 0.6,
+          "cache": 0.015
+        },
+        "gpt-oss:20b": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.07,
+          "out": 0.3,
+          "cache": 0.035
+        },
+        "minimax-m3": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.6,
+          "out": 2.4,
+          "cache": 0.12
+        },
+        "kimi-k2.7-code": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.95,
+          "out": 4.0,
+          "cache": 0.19
+        },
+        "mistral-large-4": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.68,
+          "out": 2.09,
+          "cache": 0.07
+        },
+        "deepseek-v4-pro:0813": {
+          "source": "Ollama 官方 pricing 页 Model pricing 表",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-16",
+          "price_note": "Ollama 官方 per-token 价（USD/百万 token），与 hub 口径一致。调用名带 tag（如 `gemma4:31b`）而价目表给基名（`gemma4`）⇒ 按**剥掉 `:tag` 后的基名**匹配价目（推断：同基名同价）。",
+          "in": 1.32,
+          "cache": 0.044,
+          "out": 3.96,
+          "off_in": 0.66,
+          "off_cache": 0.022,
+          "off_out": 1.98
+        },
+        "deepseek-v4.1-flash": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.006,
+          "off_in": 0.15,
+          "off_cache": 0.003,
+          "off_out": 0.6
+        },
+        "clef:27b": {
+          "source": "Ollama 官方 pricing 页 Model pricing 表 + Decision 文档",
+          "source_url": "https://ollama.com/pricing",
+          "source_doc": "https://docs.ollama.com/capabilities/decision",
+          "checked_at": "2026-10-25",
+          "price_note": "官方 Input $0.24；Cached input 与 Output 均为 `-`。cache 按 input 计（input_fallback）；out 记 0，因官方按输入 token 计费（official_input_only）。",
+          "cache_note": "官方 Cached input 为 `-`；按 2026-10-25 批准的 cache=in 降级口径计，不应用缓存折扣。",
+          "out_note": "决策模型按官方文档仅按输入 token 计费（output_tokens=0）；out=0 表示不计输出，不是免费牌价。",
+          "billing_basis": "input_only",
+          "in": 0.24,
+          "cache": 0.24,
+          "out": 0.0,
+          "cache_source": "input_fallback",
+          "out_source": "official_input_only"
+        },
+        "nemotron-3-nano:30b": {
+          "source": "Ollama 官方 pricing 页 Model pricing 表",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-25",
+          "price_note": "官方 Input/Output 为 $0.06/$0.24；Cached input 未公布，cache 按 input 计（保守，不少算）。",
+          "cache_note": "官方 Cached input 为 `-`；按 2026-10-25 批准的 cache=in 降级口径计，不应用缓存折扣。",
+          "in": 0.06,
+          "cache": 0.06,
+          "out": 0.24,
+          "cache_source": "input_fallback"
+        },
+        "mistral-large-3:675b": {
+          "source": "Ollama 官方 pricing 页 Model pricing 表",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-25",
+          "price_note": "官方 Input/Output 为 $0.50/$1.50；Cached input 未公布，cache 按 input 计（保守，不少算）。",
+          "cache_note": "官方 Cached input 为 `-`；按 2026-10-25 批准的 cache=in 降级口径计，不应用缓存折扣。",
+          "in": 0.5,
+          "cache": 0.5,
+          "out": 1.5,
+          "cache_source": "input_fallback"
+        },
+        "deepseek-v4-pro": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.32,
+          "out": 3.96,
+          "cache": 0.044,
+          "off_in": 0.66,
+          "off_cache": 0.022,
+          "off_out": 1.98
+        },
+        "gemma4": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.14,
+          "out": 0.4,
+          "cache": 0.05
+        },
+        "minimax-m3.1-flash": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.6,
+          "cache": 0.015
+        },
+        "mistral-large-3": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.5,
+          "out": 1.5,
+          "cache": 0.5,
+          "cache_source": "in",
+          "cache_note": "官方未公布缓存价，按输入价计（cache=in 降级）"
+        },
+        "nemotron-3-nano": {
+          "source": "官方价目页 https://ollama.com/pricing",
+          "source_url": "https://ollama.com/pricing",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.06,
+          "out": 0.24,
+          "cache": 0.06,
+          "cache_source": "in",
+          "cache_note": "官方未公布缓存价，按输入价计（cache=in 降级）"
+        }
+      },
+      "billing_kind": "usage"
+    },
+    "ollama-v2": {
+      "peak_rule": {
+        "kind": "utc_weekday_window",
+        "start_hour": 12,
+        "end_hour": 18
+      },
+      "peak_rule_note": "官方原文：Off-peak pricing apply outside 12:00 and 18:00 UTC on weekdays and all day on weekends —— 即**工作日 12:00–18:00 UTC 为峰**，其余（含周末全天）为谷。⚠️ 与 trae 的谷峰规则**完全不同**（trae 按本地时区 22:00–08:00 为谷），不可复用。",
+      "discount": 1.0,
+      "updated_at": "2026-10-06 16:20 牌价口径（折扣归 1）",
+      "display_discount": 0.334,
+      "display_discount_note": "纯展示（不计费）：账按官方牌价落定，此值为实付折扣率",
+      "models": {
+        "deepseek-v4.1-flash": {
+          "source": "用户提供截图 2026-09-24",
+          "in": 0.3,
+          "cache": 0.006,
+          "out": 1.2,
+          "off_in": 0.15,
+          "off_cache": 0.003,
+          "off_out": 0.6
+        }
+      }
+    },
+    "tokenharbor": {
+      "updated_at": "2026-10-19 07:50",
+      "billing_kind": "subscription",
+      "plan_book": "tokenharbor",
+      "discount": 1.0,
+      "models": {
+        "claude-sonnet-4.6": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 3.0,
+          "cache": 0.3,
+          "out": 15.0
+        },
+        "claude-opus-5.5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 4.0,
+          "cache": 0.2,
+          "out": 20.0
+        },
+        "claude-opus-5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 5.0,
+          "cache": 0.5,
+          "out": 25.0
+        },
+        "claude-sonnet-5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.2,
+          "out": 10.0
+        },
+        "grok-4.6": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.5,
+          "out": 6.0
+        },
+        "kimi-k3": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 3.0,
+          "cache": 0.3,
+          "out": 15.0
+        },
+        "glm-5.3": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.4,
+          "cache": 0.283,
+          "out": 4.4
+        },
+        "kimi-k2.6": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.95,
+          "cache": 0.16,
+          "out": 4.0
+        },
+        "mimo-v2.5-pro": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.435,
+          "cache": 0.0036,
+          "out": 0.87
+        },
+        "mimo-v2.5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.14,
+          "cache": 0.0028,
+          "out": 0.28
+        },
+        "gemini-3.8-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.75,
+          "cache": 0.075,
+          "out": 3.75
+        },
+        "deepseek-v4-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.44,
+          "cache": 0.044,
+          "out": 1.32
+        },
+        "claude-fable-5.1": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 10.0,
+          "cache": 0.25,
+          "out": 50.0
+        },
+        "qwen3.7-max": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.5,
+          "cache": 0.5,
+          "out": 7.5
+        },
+        "glm-5.1": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.4,
+          "cache": 0.26,
+          "out": 4.4
+        },
+        "deepseek-v4-pro": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.32,
+          "cache": 0.2,
+          "out": 3.96
+        },
+        "claude-fable-5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 10.0,
+          "cache": 1.0,
+          "out": 50.0
+        },
+        "claude-opus-4.8": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 5.0,
+          "cache": 0.5,
+          "out": 25.0
+        },
+        "gpt-5.5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 5.0,
+          "cache": 5.0,
+          "out": 30.0
+        },
+        "qwen3.8-max": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.25,
+          "out": 6.0
+        },
+        "glm-5.3-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.15,
+          "cache": 0.03,
+          "out": 0.5
+        },
+        "mimo-v2.6-pro": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.435,
+          "cache": 0.0036,
+          "out": 0.87
+        },
+        "claude-sonnet-5.5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.1,
+          "out": 10.0
+        },
+        "gpt-6-luna": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.1,
+          "cache": 0.01,
+          "out": 0.5
+        },
+        "mistral-large-2512": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.5,
+          "cache": 0.5,
+          "out": 1.5
+        },
+        "gemini-3.7-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.75,
+          "cache": 0.075,
+          "out": 3.75
+        },
+        "grok-4.5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.3,
+          "out": 6.0
+        },
+        "muse-spark-1.2": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.25,
+          "cache": 0.15,
+          "out": 4.25
+        },
+        "gpt-6-astra": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 10.0,
+          "cache": 1.0,
+          "out": 50.0
+        },
+        "muse-spark-1-3": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.25,
+          "cache": 0.15,
+          "out": 4.25
+        },
+        "deepseek-v4.1-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.3,
+          "cache": 0.03,
+          "out": 1.2
+        },
+        "gemini-3.6-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.75,
+          "cache": 0.075,
+          "out": 3.75
+        },
+        "glm-5.2": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.4,
+          "cache": 0.28,
+          "out": 4.4
+        },
+        "gpt-5.6-luna": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.2,
+          "cache": 0.02,
+          "out": 1.2
+        },
+        "gpt-5.6-sol": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 4.0,
+          "cache": 0.4,
+          "out": 20.0
+        },
+        "gpt-5.6-terra": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.2,
+          "out": 12.0
+        },
+        "muse-spark-1.1": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 1.25,
+          "cache": 0.15,
+          "out": 4.25
+        },
+        "qwen3.6-27b": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.6,
+          "cache": 0.6,
+          "out": 3.6
+        },
+        "qwen3.6-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.25,
+          "cache": 0.25,
+          "out": 1.5
+        },
+        "deepseek-v3.2": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.28,
+          "cache": 0.028,
+          "out": 0.4
+        },
+        "qwen3.5-27b": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.3,
+          "cache": 0.3,
+          "out": 2.4
+        },
+        "qwen3.7-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.03,
+          "cache": 0.006,
+          "out": 0.13
+        },
+        "qwen3.8-27b": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.35,
+          "cache": 0.1,
+          "out": 2.1
+        },
+        "qwen3.8-flash": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.15,
+          "cache": 0.016,
+          "out": 0.47
+        },
+        "claude-opus-5-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 10.0,
+          "cache": 1.0,
+          "out": 50.0
+        },
+        "kimi-k3-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 4.5,
+          "cache": 0.45,
+          "out": 22.5
+        },
+        "gpt-5.6-luna-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.4,
+          "cache": 0.04,
+          "out": 2.4
+        },
+        "gpt-5.6-sol-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 8.0,
+          "cache": 0.8,
+          "out": 40.0
+        },
+        "gpt-5.6-terra-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 4.0,
+          "cache": 0.4,
+          "out": 24.0
+        },
+        "gpt-6-astra-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 20.0,
+          "cache": 2.0,
+          "out": 100.0
+        },
+        "glm-5.3-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.1,
+          "cache": 0.21,
+          "out": 6.6
+        },
+        "glm-5.3-flashx": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.37,
+          "cache": 0.075,
+          "out": 1.25
+        },
+        "grok-4.7": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.5,
+          "out": 6.0
+        },
+        "mimo-v2.6-flash": {
+          "source": "离线价格文档（D:\\租界\\..\\01-模型费率与折扣）",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "由「价格文档」离线同步（hub脚本/tools/sync-thirdparty.py）；文档是唯一事实源，运行时不再打上游取价。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.14,
+          "cache": 0.0028,
+          "out": 0.28,
+          "source_doc": "TokenHarbor-计费体系-总纲-20261014.md"
+        },
+        "claude-opus-5.5-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 8.0,
+          "cache": 0.4,
+          "out": 40.0
+        },
+        "gpt-6-luna-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.2,
+          "cache": 0.02,
+          "out": 1.0
+        },
+        "gpt-6-sol": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.2,
+          "out": 10.0
+        },
+        "gpt-6-sol-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 4.0,
+          "cache": 0.4,
+          "out": 20.0
+        },
+        "gpt-6.1-sol": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 2.0,
+          "cache": 0.1,
+          "out": 10.0
+        },
+        "gpt-6.1-sol-fast": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 4.0,
+          "cache": 0.2,
+          "out": 20.0
+        },
+        "mistral-large-4": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.68,
+          "cache": 0.07,
+          "out": 2.09
+        },
+        "claude-haiku-5.5": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.1,
+          "cache": 0.01,
+          "out": 0.5
+        },
+        "apex": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.5,
+          "cache": 0.5,
+          "out": 3.0
+        },
+        "mimo-v2.5:free": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0
+        },
+        "deepseek-v4-flash:free": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0
+        },
+        "deepseek-v4.1-flash:free": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0
+        },
+        "mimo-v2.6-flash:free": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0
+        },
+        "claude-haiku-5.5:free": {
+          "source": "Token Harbor 官方 models 页面及其 /v1/models 定价对象",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价；USD / 百万 token。页面当前列输入 / 输出价。页面与 /v1/models 交叉核验 15 个可见条目。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方页面与 /v1/models 未公布独立缓存价；Hub 暂按输入价计缓存 token，不应用缓存折扣。",
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0
+        },
+        "muse-wonder-1.0": {
+          "source": "计费总纲 TokenHarbor-计费体系-总纲-20261014(data/tokenharbor_pricing.json)",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价;USD / 百万 token(取自计费总纲)。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方未公布独立缓存价;按输入价计缓存 token(与总纲 §3.4 一致)。",
+          "in": 4.0,
+          "cache": 0.2,
+          "out": 20.0
+        },
+        "gemini-4-argon": {
+          "source": "计费总纲 TokenHarbor-计费体系-总纲-20261014(data/tokenharbor_pricing.json)",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "tokenharbor/v1/models",
+          "checked_at": "2026-10-14 17:20",
+          "price_note": "Token Harbor 官方公开标准价;USD / 百万 token(取自计费总纲)。　由离线文档同步：事实源 = TokenHarbor-计费体系-总纲-20261014.md（2026-10-14 17:20，离线文档，运行时不再打上游取价）。　【上游端点同步】 值取自 tokenharbor/v1/models（2026-10-19 18:57，端点直出）。",
+          "cache_note": "官方未公布独立缓存价;按输入价计缓存 token(与总纲 §3.4 一致)。",
+          "in": 2.0,
+          "cache": 0.1,
+          "out": 10.0
+        },
+        "lfm2.5-24b-a2b": {
+          "source": "计费总纲 TokenHarbor-计费体系-总纲-20261014(data/tokenharbor_pricing.json)",
+          "source_url": "https://tokenharbor.ai/models",
+          "source_api": "https://tokenharbor.ai/v1/models",
+          "checked_at": "2026-10-14 15:38 中国标准时间",
+          "price_note": "Token Harbor 官方公开标准价;USD / 百万 token(取自计费总纲)。",
+          "cache_note": "官方未公布独立缓存价;按输入价计缓存 token(与总纲 §3.4 一致)。",
+          "in": 0.05,
+          "cache": 0.05,
+          "out": 0.7
+        }
+      }
+    },
+    "opencode": {
+      "updated_at": "2026-10-19 07:50",
+      "peak_rule_note": "官方原文（Go 文档「Usage limits」）：工作日 01:00–04:00 与 06:00–10:00 UTC 为峰，其余时段含周末全天为谷；峰价 = 谷价 ×2。两个窗口之间（04:00–06:00）是**谷**，故不能用单窗口 `utc_weekday_window` 表达 —— 2026-10-19 起 catalog 支持 `utc_weekday_windows`（多窗口），本规则据此填写。⚠️ 与 ollama（工作日 12:00–18:00 UTC 单窗口）和 trae（本地时区 22–08 为谷）都不是同一套规则。",
+      "peak_rule": {
+        "kind": "utc_weekday_windows",
+        "windows": [
+          [
+            1,
+            4
+          ],
+          [
+            6,
+            10
+          ]
+        ]
+      },
+      "discount": 1.0,
+      "models": {
+        "glm-5.3-flash": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.5,
+          "cache": 0.03
+        },
+        "glm-5.3": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.4,
+          "out": 4.4,
+          "cache": 0.26
+        },
+        "kimi-k2.7-code": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.95,
+          "out": 4.0,
+          "cache": 0.19
+        },
+        "kimi-k3": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 3.0,
+          "out": 15.0,
+          "cache": 0.3
+        },
+        "minimax-m3": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.06
+        },
+        "deepseek-v4.1-flash": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　官方给 (Off-Peak)/(Peak) 两行；按 catalog 取价方向放：峰价入 in/out/cache、谷价入 off_*　⚠️ 官方给峰/谷两行：本表 **in/out/cache = (Peak) 峰价** $0.30/$1.20/$0.006、**off_* = (Off-Peak) 谷价** $0.15/$0.60/$0.003（与 catalog.custom_cost_cny 的取价方向一致）。　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方列 `Cached Read` → 本仓 `cache`（缓存读价）。官方另有 `Cached Write` 一档，本仓无对应字段 ⇒ 未登记。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.006,
+          "off_in": 0.15,
+          "off_out": 0.6,
+          "off_cache": 0.003
+        },
+        "deepseek-v4-pro": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　官方给 (Off-Peak)/(Peak) 两行；按 catalog 取价方向放：峰价入 in/out/cache、谷价入 off_*　⚠️ 官方给峰/谷两行：本表 **in/out/cache = (Peak) 峰价** $1.32/$3.96/$0.044、**off_* = (Off-Peak) 谷价** $0.66/$1.98/$0.022（与 catalog.custom_cost_cny 的取价方向一致）。　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "cache_note": "官方列 `Cached Read` → 本仓 `cache`（缓存读价）。官方另有 `Cached Write` 一档，本仓无对应字段 ⇒ 未登记。",
+          "in": 1.32,
+          "out": 3.96,
+          "cache": 0.044,
+          "off_in": 0.66,
+          "off_out": 1.98,
+          "off_cache": 0.022
+        },
+        "glm-5.2": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.4,
+          "out": 4.4,
+          "cache": 0.26
+        },
+        "longcat-2.0": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.006
+        },
+        "mimo-v2.6-flash": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.14,
+          "out": 0.28,
+          "cache": 0.0028
+        },
+        "mimo-v2.6-pro": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.435,
+          "out": 0.87,
+          "cache": 0.003625
+        },
+        "mimo-v2.5": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.14,
+          "out": 0.28,
+          "cache": 0.0028
+        },
+        "mimo-v2.5-pro": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.435,
+          "out": 0.87,
+          "cache": 0.003625
+        },
+        "muse-spark-1.3-contributor": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.1,
+          "out": 0.2,
+          "cache": 0.002
+        },
+        "muse-spark-1.2-contributor": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.1,
+          "out": 0.2,
+          "cache": 0.002
+        },
+        "qwen3.8-max": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 6.0,
+          "cache": 0.25
+        },
+        "qwen3.8-flash": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.47,
+          "cache": 0.016
+        },
+        "qwen3.7-plus": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　长上下文（>256K）官方另有 $1.20/$4.80/$0.12 档　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "in": 0.4,
+          "out": 1.6,
+          "cache": 0.04
+        },
+        "hy4-preview": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.834,
+          "out": 2.501,
+          "cache": 0.042
+        },
+        "hy3": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.14,
+          "out": 0.58,
+          "cache": 0.035
+        },
+        "space-bunny": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "in": 0.15,
+          "out": 0.6,
+          "cache": 0.03
+        },
+        "grok-4.7": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　长上下文（>200K）另有 $4/$12/$1 档　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "in": 2.0,
+          "out": 6.0,
+          "cache": 0.5
+        },
+        "gpt-6-luna": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　长上下文（>272K）另有 $0.20/$0.75/$0.02 档　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "in": 0.1,
+          "out": 0.5,
+          "cache": 0.01
+        },
+        "gpt-5.6-luna": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　长上下文（>272K）另有 $0.40/$1.80/$0.04 档　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。",
+          "in": 0.2,
+          "out": 1.2,
+          "cache": 0.02
+        },
+        "claude-haiku-5-5": {
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-17",
+          "price_note": "OpenCode 官方 Go 文档「Usage limits」表（USD/1M token，列序 Input|Output|Cached Read）。　长上下文（>100K）另有 $0.50/$2.50/$0.05 档",
+          "in": 0.1,
+          "out": 0.5,
+          "cache": 0.01
+        },
+        "beam-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-18",
+          "price_note": "免费无限（限时档）。⚠️ 地区限制：官方列举不含 China（含香港/澳门）⇒ 国内不可用。",
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0
+        },
+        "longcat-2.5-preview-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-18",
+          "price_note": "免费无限（限时档）。",
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0
+        },
+        "gemini-4-argon-contributor": {
+          "in": 4.0,
+          "cache": 0.2,
+          "out": 20.0,
+          "source": "OpenCode 官方 Go 文档「Usage limits」表",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-15",
+          "price_note": "Contributor 档；Go 月上限 30（限时 2x → 60）。　由离线文档同步：事实源 = OpenCode-Go-计费体系-20261015.md（2026-10-15，离线文档，运行时不再打上游取价）。"
+        },
+        "step-5-preview": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.0,
+          "out": 2.7,
+          "cache": 0.1
+        },
+        "deepseek-v4.1-flash-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "glm-5.3-flash-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "jev-1.13-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "mimo-v2.6-flash-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "nemotron-3.5-lightning-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "nemotron-3.5-super-vl-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "space-bunny-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode Console 账本 /inference/v1/models（85 条清单）",
+          "source_url": "https://opencode.ai/inference/v1/models",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档（Console 账本 `/inference/v1/models` 列表内，价格 0）。⚠️ 2026-10-18 实测：**只能 OpenCode 客户端内部调用** —— Console 线路返回 403 `FreeTierError`（原文 \"free tier can only be used from within OpenCode\"）；Go 线路（hub 现用 base_url）返回 400 `Model is unavailable`。故**未**登记进上游 models_json（登了会显示免费却一调即错）。"
+        },
+        "big-pickle": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode CLI `opencode models` 免费档清单（客户端身份可用）",
+          "source_url": "https://opencode.ai/v2/docs/cli",
+          "checked_at": "2026-10-18",
+          "price_note": "免费别名（CLI 把它列在免费档；名字里没有 `-free` 但价格 0）。2026-10-18 实测：经本地桥（opencode-free-bridge）可调通出正文。"
+        },
+        "nemotron-3-ultra-free": {
+          "in": 0.0,
+          "cache": 0.0,
+          "out": 0.0,
+          "off_in": 0.0,
+          "off_cache": 0.0,
+          "off_out": 0.0,
+          "source": "OpenCode CLI `opencode models`（**只在客户端清单里**，/inference/v1 与 /zen/go/v1 均无）",
+          "source_url": "https://opencode.ai/v2/docs/cli",
+          "checked_at": "2026-10-18",
+          "price_note": "免费档，**客户端专属**：这张 id 只在 CLI 的模型清单出现（用户截图里那个）。2026-10-18 实测经本地桥（opencode CLI 身份）调通出正文。"
+        },
+        "Claude Haiku 5.5": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.1,
+          "out": 0.5,
+          "cache": 0.01
+        },
+        "DeepSeek V4 Pro": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 1.32,
+          "out": 3.96,
+          "cache": 0.044,
+          "off_in": 0.66,
+          "off_cache": 0.022,
+          "off_out": 1.98
+        },
+        "DeepSeek V4.1 Flash": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.3,
+          "out": 1.2,
+          "cache": 0.006,
+          "off_in": 0.15,
+          "off_cache": 0.003,
+          "off_out": 0.6
+        },
+        "GPT 5.6 Luna": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.2,
+          "out": 1.2,
+          "cache": 0.02
+        },
+        "GPT 6 Luna": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.1,
+          "out": 0.5,
+          "cache": 0.01
+        },
+        "Grok 4.7": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 6.0,
+          "cache": 0.5
+        },
+        "Qwen3.7 Plus": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.4,
+          "out": 1.6,
+          "cache": 0.04
+        },
+        "kimi-k3.1-pro": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 2.0,
+          "out": 10.0,
+          "cache": 0.2
+        },
+        "minimax-m3.1-flash": {
+          "source": "官方价目页 https://opencode.ai/v2/docs/console/go/",
+          "source_url": "https://opencode.ai/v2/docs/console/go/",
+          "checked_at": "2026-10-26",
+          "price_note": "上游公开价目端点直出；单位 USD/百万 token，与本地价目表口径一致。缓存价取 cacheRead（读缓存价），cacheWrite 不计费故不落字段。",
+          "in": 0.15,
+          "out": 0.6,
+          "cache": 0.015
+        }
+      },
+      "billing_kind": "usage"
+    }
+  }
+}

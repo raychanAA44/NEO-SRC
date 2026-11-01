@@ -1,0 +1,208 @@
+{
+  "schema": 1,
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8798,
+    "max_body_bytes": 33554432,
+    "timeout_s": 180
+  },
+  "auth": {
+    "enabled": true,
+    "username": "admin",
+    "session_ttl_s": 43200,
+    "cookie_secure": false,
+    "login_max_failures": 5,
+    "login_window_s": 300,
+    "trust_proxy": true
+  },
+  "default_channel": "open-design",
+  "channels": {
+    "open-design": {
+      "base_url": "https://models.example.invalid/v1",
+      "token_env": "HUB_MODEL_TOKEN",
+      "models": [
+        "deepseek-v4-pro",
+        "glm-5.3-flash",
+        "claude-haiku-5.5"
+      ],
+      "endpoint": "",
+      "headers": {},
+      "probe_path": "/health",
+      "login_url": "",
+      "usage_path": ""
+    },
+    "ollama": {
+      "base_url": "https://ollama.com/v1",
+      "token_env": "HUB_OLLAMA_TOKEN",
+      "models": [
+        "clef:27b"
+      ],
+      "aliases": {
+        "clef": "clef:27b"
+      },
+      "endpoint": "/v1/systemone",
+      "decision": true,
+      "pricing_channel": "ollama",
+      "headers": {},
+      "probe_path": "/health",
+      "login_url": "",
+      "usage_path": ""
+    }
+  },
+  "groups": {
+    "auto/code-heavy": {
+      "name": "重型编程组",
+      "policy": {
+        "task_lock": true,
+        "smart_tier": true
+      },
+      "members": [
+        {
+          "channel": "open-design",
+          "id": "deepseek-v4-pro",
+          "upstream_name": "deepseek-v4-pro",
+          "tier": "strong",
+          "priority": 1,
+          "enabled": true
+        },
+        {
+          "channel": "open-design",
+          "id": "glm-5.3-flash",
+          "upstream_name": "glm-5.3-flash",
+          "tier": "weak",
+          "priority": 2,
+          "enabled": true
+        },
+        {
+          "channel": "open-design",
+          "id": "claude-haiku-5.5",
+          "upstream_name": "claude-haiku-5.5",
+          "tier": "weak",
+          "priority": 3,
+          "enabled": true
+        }
+      ]
+    },
+    "auto/fast-chat": {
+      "name": "轻量快聊组",
+      "policy": {
+        "task_lock": true,
+        "smart_tier": false
+      },
+      "members": [
+        {
+          "channel": "open-design",
+          "id": "glm-5.3-flash",
+          "upstream_name": "glm-5.3-flash",
+          "tier": "weak",
+          "priority": 1,
+          "enabled": true
+        },
+        {
+          "channel": "ollama",
+          "id": "clef:27b",
+          "upstream_name": "clef:27b",
+          "tier": "weak",
+          "priority": 2,
+          "enabled": true
+        }
+      ]
+    }
+  },
+  "control": {
+    "channels": {
+      "open-design": {
+        "enabled": true
+      },
+      "ollama": {
+        "enabled": true
+      }
+    },
+    "models": {}
+  },
+  "pricing": {
+    "$note": "示意价目 · 峰价/谷价两档，上线前按渠道替换",
+    "unit": "USD_per_mtok",
+    "usd_cny": 7.2,
+    "channels": {
+      "open-design": {
+        "peak_rule": {
+          "kind": "utc_weekday_window",
+          "start_hour": 12,
+          "end_hour": 18
+        },
+        "models": {
+          "deepseek-v4-pro": {
+            "in": 0.28,
+            "cache": 0.07,
+            "out": 1.1,
+            "off_in": 0.14,
+            "off_cache": 0.035,
+            "off_out": 0.55
+          },
+          "glm-5.3-flash": {
+            "in": 0.06,
+            "cache": 0.015,
+            "out": 0.24,
+            "off_in": 0.03,
+            "off_cache": 0.0075,
+            "off_out": 0.12
+          },
+          "claude-haiku-5.5": {
+            "in": 0.8,
+            "cache": 0.2,
+            "out": 4.0,
+            "off_in": 0.4,
+            "off_cache": 0.1,
+            "off_out": 2.0
+          }
+        }
+      },
+      "ollama": {
+        "peak_rule": {
+          "kind": "utc_weekday_window",
+          "start_hour": 12,
+          "end_hour": 18
+        },
+        "models": {
+          "clef:27b": {
+            "in": 0.1,
+            "cache": 0.1,
+            "out": 0.0,
+            "off_in": 0.05,
+            "off_cache": 0.05,
+            "off_out": 0.0
+          }
+        }
+      }
+    }
+  },
+  "ledger": {
+    "path": "运维区/data/kwsa_lite.db",
+    "keep_days": 7
+  },
+  "rate_limit": {
+    "enabled": true,
+    "rps": 100,
+    "burst": 150
+  },
+  "data_plane": {
+    "require_key": true,
+    "keys_path": "运维区/data/kwsa_lite_client_keys.json",
+    "default_rps": 20,
+    "default_burst": 40
+  },
+  "audit": {
+    "path": "运维区/data/kwsa_lite_audit.jsonl",
+    "max_bytes": 2097152
+  },
+  "routing": {
+    "timeout_s": 180,
+    "task_lock_ttl_s": 43200
+  },
+  "probe": {
+    "enabled": false,
+    "interval_s": 60,
+    "timeout_s": 4
+  }
+}

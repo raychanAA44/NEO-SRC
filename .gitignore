@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+*.local.json
+*.log
+*.db
+*.db-journal
+运维区/data/
+运维区/certs/
+build/

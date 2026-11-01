@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.0.0",
+  "groups": {
+    "auto/code-heavy": {
+      "name": "重型编程组",
+      "policy": {
+        "task_lock": true,
+        "smart_tier": true,
+        "hedged_racing": false
+      },
+      "members": [
+        {
+          "channel": "open-design",
+          "id": "deepseek-v4-pro",
+          "upstream_name": "deepseek-v4-pro",
+          "tier": "strong",
+          "priority": 1,
+          "enabled": true
+        },
+        {
+          "channel": "open-design",
+          "id": "glm-5.3-flash",
+          "upstream_name": "glm-5.3-flash",
+          "tier": "weak",
+          "priority": 2,
+          "enabled": true
+        },
+        {
+          "channel": "open-design",
+          "id": "claude-haiku-5.5",
+          "upstream_name": "claude-haiku-5.5",
+          "tier": "weak",
+          "priority": 3,
+          "enabled": true
+        }
+      ]
+    },
+    "auto/auto4.1": {
+      "name": "4.1",
+      "policy": {
+        "endpoint": "/v1/chat/completions"
+      },
+      "members": []
+    }
+  }
+}

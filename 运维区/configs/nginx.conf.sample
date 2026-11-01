@@ -1,0 +1,62 @@
+# HUB NEO Gateway - Nginx Baseline Configuration Sample
+
+worker_processes auto;
+events {
+    worker_connections 2048;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    # 结构化 JSON 访问日志格式
+    log_format json_combined escape=json
+      '{"timestamp":"$time_iso8601",'
+      '"req_id":"$request_id",'
+      '"client_ip":"$remote_addr",'
+      '"status":$status,'
+      '"upstream_status":"$upstream_status",'
+      '"latency_ms":$request_time,'
+      '"upstream_latency_ms":"$upstream_response_time",'
+      '"request_uri":"$request_uri",'
+      '"http_host":"$host"}';
+
+    access_log /var/log/nginx/access_json.log json_combined;
+
+    # 限流配置：非登录接口 ≤ 100 req/s
+    limit_req_zone $binary_remote_addr zone=gateway_limit:10m rate=100r/s;
+
+    server {
+        listen 8888;
+        server_name localhost;
+
+        # 健康检查探针（排除限流）
+        location = /health {
+            access_log off;
+            default_type application/json;
+            return 200 '{"status":"ok","service":"hub-neo-gateway","port":8888}';
+        }
+
+        # 核心网关反代路由
+        location / {
+            limit_req zone=gateway_limit burst=20 nodelay;
+
+            # 反向代理 Header 完整性
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Host $http_host;
+
+            # W3C Trace Context 透传 / 自动注入 Request-Id
+            proxy_set_header traceparent $http_traceparent;
+            proxy_set_header tracestate $http_tracestate;
+            proxy_set_header X-Request-Id $request_id;
+            add_header X-Request-Id $request_id always;
+
+            # 默认上游代理至本地主账本 hub-ng
+            proxy_pass http://127.0.0.1:8795;
+            proxy_connect_timeout 5s;
+            proxy_read_timeout 60s;
+        }
+    }
+}

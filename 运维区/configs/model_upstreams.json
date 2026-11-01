@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "note": "按模型选择上游；未列出的模型一律走 default_channel。token 只写环境变量名与密钥库键名，不落明文。",
+  "default_channel": "open-design",
+  "channels": {
+    "open-design": {
+      "base_url": "https://models.example.invalid/v1",
+      "token_env": "HUB_MODEL_TOKEN",
+      "token_key": "token_model",
+      "pricing_channel": "open-design"
+    },
+    "ollama": {
+      "base_url": "https://ollama.com/v1",
+      "token_env": "HUB_OLLAMA_TOKEN",
+      "token_key": "ollama_api_key",
+      "pricing_channel": "ollama",
+      "endpoint": "/v1/systemone",
+      "decision": true,
+      "models": [
+        "clef:27b"
+      ],
+      "aliases": {
+        "clef": "clef:27b"
+      },
+      "catalog": [
+        {
+          "id": "clef:27b",
+          "name": "clef:27b",
+          "owned_by": "ollama",
+          "channel": "ollama",
+          "decision": true,
+          "endpoint": "/v1/systemone",
+          "billing_basis": "input_only",
+          "note": "决策模型；官方按输入 token 计费，output_tokens=0"
+        }
+      ]
+    },
+    "opencode": {
+      "base_url": "https://opencode.ai/inference/go/v1",
+      "token_env": "HUB_CUSTOM_OPENCODE_TOKEN",
+      "pricing_channel": "opencode",
+      "endpoint": "/v1/chat/completions",
+      "custom": true,
+      "note": "模型名单待重新探测：原占位符 \"1\" 是早期价目表误抓产物",
+      "models": [],
+      "headers": {}
+    }
+  }
+}

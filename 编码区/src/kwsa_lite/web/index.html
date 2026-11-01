@@ -1,0 +1,3037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>KWSA LITE · 网关状态台</title>
+<style>
+  :root{
+    /* 语义令牌（规范 §二 / §9.2）：四色锁定 黑/白/冷灰/氧化银 */
+    --surface-newsprint-base:#cec9bc;
+    --surface-paper-high:#dad5c8;
+    --surface-paper-low:#bdb8ab;
+    --surface-steel-plate:#23241f;
+    --surface-steel-deep:#171814;
+    --ink-primary:#11120f;
+    --ink-inverse:#e3dfd4;
+    --ink-secondary:#56544c; /* 规范值 #6f6d64 仅 3.1:1，按 WCAG AA 压深 */
+    --silver:#9d9a90;
+    --edge:#0b0c09;
+    --hair:#9d9a90;
+    --line:#b3aea1;
+    --paper:var(--surface-newsprint-base);
+    --paper-hi:var(--surface-paper-high);
+    --ink:var(--ink-primary);
+    --ink-2:#393834;
+    --mute:var(--ink-secondary);
+    /* 字体矩阵（规范 §3.1）：serif=报头/KPI；sans=导航/表头/按钮；mono=数据/流水 */
+    --font-serif-editorial:"Bodoni MT","Didot","Playfair Display","Times New Roman","Songti SC","STSong","SimSun",serif;
+    --font-sans-industrial:"Bahnschrift","Franklin Gothic Medium","Segoe UI","Microsoft YaHei","PingFang SC",Arial,sans-serif;
+    --font-mono-telemetry:"Cascadia Mono","JetBrains Mono",Consolas,"Microsoft YaHei","PingFang SC",monospace;
+    --serif:var(--font-serif-editorial);
+    --sans:var(--font-sans-industrial);
+    --mono:var(--font-mono-telemetry);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{height:100%;overflow:hidden}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.35), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(0,0,0,.022) 0 1px, transparent 1px 4px),
+      var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:13px;
+    line-height:1.4;
+    letter-spacing:.01em;
+    padding:20px 24px;
+    height:100vh;
+    overflow:hidden;
+    font-synthesis:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  .sheet{max-width:1560px;margin:0 auto;height:calc(100vh - 40px);display:flex;flex-direction:column;min-height:0}
+  .workspace{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-right:2px}
+  .workspace::-webkit-scrollbar{width:8px}
+  .workspace::-webkit-scrollbar-thumb{background:var(--silver);border:2px solid var(--paper)}
+
+  /* ── 报头 ─────────────────────────────── */
+  .masthead{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;border-bottom:2px solid var(--ink);padding-bottom:10px;flex:none}
+  .kicker{font:700 11px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+  h1{font-family:var(--serif);font-weight:700;font-size:clamp(48px,5.2vw,64px);line-height:.92;letter-spacing:-.01em;margin:6px 0 4px;font-kerning:normal}
+  h1 span{font-style:italic;letter-spacing:.01em}
+  .sub{font:400 12px/1.5 var(--mono);letter-spacing:.06em;color:var(--ink-2);margin:0;text-transform:uppercase}
+  .stamp{min-width:300px;border:1px solid var(--ink);padding:0;flex:none}
+  .stamp-acts{display:flex;gap:4px;flex:none}
+  .stamp-row{display:flex;justify-content:space-between;gap:12px;padding:5px 8px;border-bottom:1px solid var(--line)}
+  .stamp-row:last-child{border-bottom:0}
+  .stamp-row span{font:700 11px/1.3 var(--mono);letter-spacing:.1em;color:var(--mute)}
+  .stamp-row b{font:700 12px/1.3 var(--mono);letter-spacing:.03em}
+  .stamp-row b.mock{background:var(--ink);color:var(--paper-hi);padding:1px 5px}
+  .stamp-row .btn-sm{min-height:28px;padding:3px 7px;font-size:11px}
+
+  .rule{display:flex;justify-content:space-between;gap:16px;border-bottom:1px solid var(--hair);padding:5px 0;margin-bottom:12px;font:700 11px/1.2 var(--mono);letter-spacing:.06em;color:var(--mute);flex:none}
+  .rule .dot{width:6px;height:6px;background:var(--ink);display:inline-block;margin-right:6px;vertical-align:0}
+  .rule-acts{display:inline-flex;align-items:center;gap:6px}
+  .rule select{min-height:28px;border:1px solid var(--ink);border-radius:0;background:transparent;
+    color:var(--ink);padding:2px 4px;font:700 11px/1.2 var(--mono)}
+
+  /* ── 指标条 ───────────────────────────── */
+  .tiles{display:grid;grid-template-columns:1.15fr 1fr 1fr 1fr;border:1px solid var(--ink);margin-bottom:14px;flex:none}
+  .tile{padding:11px 14px 10px;border-right:1px solid var(--line);position:relative;background:linear-gradient(180deg,rgba(255,255,255,.16),transparent)}
+  .tile:last-child{border-right:0}
+  .tile .lab{font:700 12px/1.2 var(--sans);letter-spacing:.02em;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
+  .tile .val{font:700 32px/1.04 var(--serif);letter-spacing:-.02em;margin:7px 0 2px;font-variant-numeric:tabular-nums lining-nums}
+  .tile .val small{font:700 11px/1 var(--mono);letter-spacing:.06em;margin-left:8px;color:var(--mute);font-variant-numeric:normal}
+  .tile .note{font:400 12px/1.3 var(--mono);color:var(--mute);letter-spacing:.01em}
+  .tile .ok{font:700 11px/1 var(--mono);letter-spacing:.06em;border:1px solid var(--ink);padding:4px 6px;flex:none}
+  .tile .ok::before{content:"■";margin-right:5px;font-size:11px}
+  .tile .ok.off{color:var(--mute);border-color:var(--hair)}
+  .pending{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--ink);background:var(--ink);color:var(--paper-hi);padding:7px 10px;margin:-6px 0 12px;font:700 11px/1.4 var(--mono);letter-spacing:.04em;flex:none}
+  .pending[hidden]{display:none}
+  .flash{animation:flip .28s steps(2,end)}
+  @keyframes flip{0%{opacity:.2;transform:translateY(-2px)}100%{opacity:1;transform:none}}
+
+  /* ── 三分栏 ───────────────────────────── */
+  .grid{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin:0}
+  .panel{border:1px solid var(--ink);background:rgba(255,255,255,.1);min-width:0}
+  .panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 10px;border-bottom:1px solid var(--ink)}
+  .panel-head h2{font:700 18px/1.15 var(--serif);margin:0;letter-spacing:-.01em}
+  .panel-head .en{font:700 11px/1.2 var(--mono);letter-spacing:.12em;color:var(--mute);text-transform:uppercase}
+  .head-actions{display:flex;align-items:center;gap:8px;flex:none}
+  .head-actions input[type="search"],.head-actions select{min-height:28px;max-width:132px;border:1px solid var(--ink);
+    border-radius:0;background:var(--paper-hi);color:var(--ink);padding:3px 6px;
+    font:400 11px/1.2 var(--mono)}
+  .head-actions input[type="search"]:focus,.head-actions select:focus{outline:2px solid var(--ink);outline-offset:1px}
+  .btn-sm{min-height:28px;padding:4px 8px;font:700 11px/1 var(--mono);letter-spacing:.04em}
+  .btn-dark{background:var(--ink);color:var(--paper-hi)}
+  .btn-dark:hover{background:transparent;color:var(--ink)}
+  .endpoint{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13px}
+  th{font:700 12px/1.2 var(--sans);letter-spacing:.02em;color:var(--mute);border-bottom:1px solid var(--hair)}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover td{background:rgba(16,16,16,.055)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums lining-nums;text-align:right}
+  .mono{font-family:var(--mono)}
+  .chan{font-weight:600;letter-spacing:.01em}
+  .sub-cell{display:block;font:400 11px/1.25 var(--mono);color:var(--mute);letter-spacing:.01em;margin-top:1px}
+  .endpoint{font-size:11px}
+  .tag{display:inline-block;border:1px solid var(--ink);padding:2px 5px;font:700 11px/1.35 var(--mono);letter-spacing:.04em;white-space:nowrap}
+  .tag.inv{background:var(--ink);color:var(--paper-hi)}
+  .tag.ghost{border-color:var(--hair);color:var(--mute)}
+
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line);font:400 12px/1.35 var(--sans)}
+  .kv b{font-family:var(--mono);font-weight:600;font-size:12px}
+
+  /* 模型目录 / 价目 */
+  .catalog-wrap{max-height:306px;overflow:auto}
+  .catalog-table th{white-space:nowrap}
+  .catalog-table td{padding:4px 6px;font-size:12px}
+  .catalog-table td.model{font:600 12px/1.2 var(--mono);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .catalog-table .price{font:400 11px/1.35 var(--mono);white-space:nowrap}
+  .catalog-table .price em{font-style:normal;color:var(--mute)}
+  .catalog-table tr.is-off td{opacity:.62}
+  .catalog-table .btn-recheck{padding:3px 6px;min-height:28px;margin-left:4px;font-size:12px;line-height:1}
+
+  /* 为什么不可用：一行一组，码 + 人话 + 证据 + 恢复路径，一屏可查 */
+  .unavail{border-top:2px solid var(--ink);padding:5px 10px 3px;max-height:176px;overflow:auto}
+  .unavail[hidden]{display:none}
+  .unavail-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}
+  .unavail-head b{font:700 12px/1.2 var(--sans)}
+  .unavail-head span{font:400 11px/1.2 var(--mono);color:var(--mute);letter-spacing:.06em}
+  .unavail-row{display:grid;grid-template-columns:4.6em minmax(0,1fr) auto;gap:1px 8px;
+    align-items:baseline;padding:4px 0;border-bottom:1px dotted var(--line)}
+  .unavail-row:last-child{border-bottom:0}
+  .unavail-row .code{font:700 11px/1.35 var(--mono);letter-spacing:.02em;white-space:nowrap}
+  .unavail-row .what{font:400 12px/1.35 var(--sans);min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .unavail-row .what em{font-style:normal;color:var(--mute);font:400 11px/1.35 var(--mono)}
+  .unavail-row .fix{grid-column:2 / 4;font:400 11px/1.4 var(--mono);color:var(--mute)}
+  .unavail-row .fix b{font-weight:600;color:var(--ink)}
+  .unavail-row .recheck{grid-row:1;grid-column:3;justify-self:end}
+  .off-only{display:inline-flex;align-items:center;gap:4px;font:400 11px/1.2 var(--mono);
+    color:var(--mute);letter-spacing:.04em;white-space:nowrap;cursor:pointer}
+  .off-only input{width:13px;height:13px;margin:0;accent-color:var(--ink)}
+
+  /* 路由矩阵 / 官方接口 */
+  .route-list{max-height:168px;overflow:auto;padding:3px 10px}
+  .route-row{display:flex;align-items:baseline;gap:7px;padding:4px 0;border-bottom:1px dotted var(--line);min-width:0}
+  .route-row:last-child{border-bottom:0}
+  .route-row .gid{font:600 11px/1.3 var(--mono);white-space:nowrap}
+  .route-row .rname{font:700 11px/1.3 var(--sans);color:var(--mute);white-space:nowrap}
+  .route-row .rmeta{font:400 11px/1.3 var(--mono);color:var(--mute);margin-left:auto;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .official-block{border-top:2px solid var(--ink);padding:7px 10px 8px}
+  .official-block .subhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}
+  .official-block h3{font:700 15px/1.15 var(--serif);margin:0}
+  .official-block .note{font:400 11px/1.4 var(--mono);color:var(--mute);margin-top:3px}
+
+  /* ── 流水 ─────────────────────────────── */
+  .stream{margin:0;flex:1;display:flex;flex-direction:column;min-height:180px}
+  .stream .table-wrap{flex:1;min-height:0;overflow:auto}
+  .stream table td{padding-top:5px;padding-bottom:5px}
+  .stream td.num{font-size:12px}
+  .stream .rid{font:400 12px/1.2 var(--mono);letter-spacing:.02em;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .stream td.model{font:400 12px/1.2 var(--mono);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stream td.tok{font:400 11px/1.25 var(--mono);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+  .stream td.period{white-space:nowrap}
+  .stream td.period .tag{font-size:11px}
+  .stream .empty, td.empty{padding:18px 10px;text-align:center;font:700 12px/1.5 var(--mono);letter-spacing:.04em;color:var(--mute)}
+
+  /* ── 页脚 ─────────────────────────────── */
+  footer{display:flex;justify-content:space-between;align-items:center;gap:18px;border-top:2px solid var(--ink);padding-top:8px;flex:none}
+  footer p{margin:0;font:400 11px/1.5 var(--sans);letter-spacing:.02em;color:var(--mute)}
+  footer .acts{display:flex;gap:8px;flex:none}
+  button{font:700 12px/1 var(--sans);letter-spacing:.04em;min-height:28px;background:transparent;border:1px solid var(--ink);color:var(--ink);padding:7px 12px;cursor:pointer}
+  button:hover{background:var(--ink);color:var(--paper-hi)}
+  button:active{transform:translateY(1px);background:var(--ink);color:var(--paper-hi)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){
+    .flash{animation:none}
+    button:active{transform:none}
+  }
+
+  /* ── 渠道收录抽屉 ─────────────────────── */
+  .scrim{position:fixed;inset:0;background:rgba(11,12,9,.42);z-index:80;opacity:0;transition:opacity .18s;pointer-events:none}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .scrim[hidden]{display:none}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);background:var(--paper-hi);border-left:2px solid var(--edge);z-index:90;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .22s steps(3,end);box-shadow:-6px 0 0 rgba(11,12,9,.16)}
+  .drawer.open{transform:none}
+  .drawer[hidden]{display:none}
+  .drawer.security-drawer{width:min(640px,100vw)}
+  .sec-block{border:1px solid var(--ink);margin-bottom:12px;background:rgba(255,255,255,.08)}
+  .sec-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 9px;border-bottom:1px solid var(--ink);flex-wrap:wrap}
+  .sec-head h3{font:700 17px/1.15 var(--serif);margin:0;letter-spacing:-.01em}
+  .sec-head select{min-height:28px;border:1px solid var(--ink);border-radius:0;background:var(--paper-hi);color:var(--ink);padding:3px 5px;font:700 11px/1.2 var(--mono)}
+  .sec-body{padding:9px}
+  .sec-note{font:400 11px/1.45 var(--mono);color:var(--mute);margin:0 0 8px}
+  .sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .sec-grid .field{margin-bottom:8px}
+  .sec-inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 7px}
+  .sec-inline .btn-sm{flex:none}
+  .sec-table{width:100%;border-collapse:collapse}
+  .sec-table th,.sec-table td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top;font-size:12px}
+  .sec-table th{font:700 11px/1.2 var(--sans);letter-spacing:.02em;color:var(--mute);border-bottom:1px solid var(--hair);white-space:nowrap}
+  .sec-table tbody tr:last-child td{border-bottom:0}
+  .sec-table tbody tr:hover td{background:rgba(16,16,16,.055)}
+  .sec-table td.mono{font-family:var(--mono);font-size:11px}
+  .sec-table .key-name{font:600 12px/1.3 var(--mono)}
+  .sec-table .key-sub{display:block;font:400 11px/1.3 var(--mono);color:var(--mute);margin-top:1px}
+  .sec-table .sec-actions{display:flex;gap:4px;flex-wrap:wrap}
+  .sec-table .sec-actions .btn-sm{padding:4px 6px;min-height:28px;font-size:11px}
+  .audit-wrap{max-height:280px;overflow:auto;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+  .key-secret{border:1px solid var(--ink);background:var(--ink);color:var(--paper-hi);padding:8px;display:flex;gap:8px;align-items:center;margin:8px 0}
+  .key-secret[hidden]{display:none}
+  .key-secret code{font:400 12px/1.4 var(--mono);word-break:break-all;flex:1;letter-spacing:.02em}
+  .key-secret button{background:transparent;color:var(--paper-hi);border-color:var(--paper-hi);flex:none}
+  .key-secret button:hover{background:var(--paper-hi);color:var(--ink)}
+  .sec-empty{padding:14px 8px;text-align:center;font:700 11px/1.5 var(--mono);letter-spacing:.04em;color:var(--mute)}
+  .drawer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 14px;border-bottom:2px solid var(--edge);flex:none}
+  .drawer-head h2{font:700 20px/1.1 var(--serif);margin:3px 0 0}
+  .drawer-body{flex:1;min-height:0;overflow:auto;padding:14px}
+  .drawer-foot{display:flex;align-items:center;gap:8px;padding:10px 14px;border-top:2px solid var(--edge);flex:none;flex-wrap:wrap}
+  .field{margin-bottom:10px;min-width:0}
+  .field label{display:block;font:700 11px/1.2 var(--mono);letter-spacing:.04em;color:var(--mute);margin-bottom:4px}
+  .field input,.field textarea,.field select{width:100%;min-height:28px;border:1px solid var(--ink);border-radius:0;background:var(--paper-hi);color:var(--ink);padding:6px 8px;font:400 12px/1.35 var(--mono);letter-spacing:.01em}
+  .field textarea{min-height:64px;resize:vertical}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:2px solid var(--ink);outline-offset:1px}
+  .field input:disabled{background:var(--surface-paper-low);color:var(--mute);cursor:not-allowed}
+  .field .hint{display:block;margin-top:3px;font:400 11px/1.35 var(--mono);color:var(--mute)}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field details summary{cursor:pointer;font:700 11px/1.2 var(--mono);letter-spacing:.04em;color:var(--mute);margin-bottom:5px}
+  .checkline{display:flex;gap:16px;flex-wrap:wrap;margin:2px 0 10px}
+  .checkline label{display:inline-flex;align-items:center;gap:6px;min-height:28px;font:700 11px/1.2 var(--mono);letter-spacing:.03em}
+  .checkline input{width:14px;height:14px;accent-color:var(--ink)}
+  .drawer-msg{min-height:34px;display:flex;align-items:center;border:1px solid var(--line);padding:6px 8px;font:400 11px/1.4 var(--mono);color:var(--mute)}
+  .drawer-msg[data-state="ok"]{background:var(--ink);border-color:var(--ink);color:var(--paper-hi)}
+  .drawer-msg[data-state="err"]{border-style:dashed;border-color:var(--ink);color:var(--ink)}
+  .danger{border-style:dashed}
+  @media (prefers-reduced-motion: reduce){
+    .scrim,.drawer{transition:none}
+  }
+  @media (max-width:720px){
+    .sec-grid{grid-template-columns:1fr}
+  }
+
+  /* ── 滑轨：与纸面同色，去掉系统白底 ─────────────── */
+  .workspace,.catalog-wrap,.route-list,.stream .table-wrap,.audit-wrap,.drawer-body,
+  .monitor-body,.flow-scroll,.matrix-body,.mini-scroll{
+    scrollbar-width:thin;scrollbar-color:var(--silver) var(--surface-paper-low);
+  }
+  .workspace::-webkit-scrollbar,.catalog-wrap::-webkit-scrollbar,.route-list::-webkit-scrollbar,
+  .stream .table-wrap::-webkit-scrollbar,.audit-wrap::-webkit-scrollbar,
+  .drawer-body::-webkit-scrollbar,.monitor-body::-webkit-scrollbar,
+  .flow-scroll::-webkit-scrollbar,.matrix-body::-webkit-scrollbar,
+  .mini-scroll::-webkit-scrollbar{width:10px;height:10px}
+  .workspace::-webkit-scrollbar-track,.catalog-wrap::-webkit-scrollbar-track,
+  .route-list::-webkit-scrollbar-track,.stream .table-wrap::-webkit-scrollbar-track,
+  .audit-wrap::-webkit-scrollbar-track,.drawer-body::-webkit-scrollbar-track,
+  .monitor-body::-webkit-scrollbar-track,.flow-scroll::-webkit-scrollbar-track,
+  .matrix-body::-webkit-scrollbar-track,.mini-scroll::-webkit-scrollbar-track{background:var(--surface-paper-low)}
+  .workspace::-webkit-scrollbar-thumb,.catalog-wrap::-webkit-scrollbar-thumb,
+  .route-list::-webkit-scrollbar-thumb,.stream .table-wrap::-webkit-scrollbar-thumb,
+  .audit-wrap::-webkit-scrollbar-thumb,.drawer-body::-webkit-scrollbar-thumb,
+  .monitor-body::-webkit-scrollbar-thumb,.flow-scroll::-webkit-scrollbar-thumb,
+  .matrix-body::-webkit-scrollbar-thumb,.mini-scroll::-webkit-scrollbar-thumb{background:var(--silver);border:2px solid var(--surface-paper-low);border-radius:0}
+  .workspace::-webkit-scrollbar-thumb:hover,.catalog-wrap::-webkit-scrollbar-thumb:hover,
+  .table-wrap::-webkit-scrollbar-thumb:hover,.mini-scroll::-webkit-scrollbar-thumb:hover{background:var(--ink-2)}
+  .workspace::-webkit-scrollbar-corner,.catalog-wrap::-webkit-scrollbar-corner,
+  .table-wrap::-webkit-scrollbar-corner,.mini-scroll::-webkit-scrollbar-corner{background:var(--surface-paper-low)}
+
+  /* ── 呼吸监测灯：黑/亮色块交替 ──────────────────── */
+  .lamp-grid{display:flex;gap:2px;align-items:center;flex:none}
+  .lamp{width:9px;height:20px;border:1px solid var(--edge);background:var(--surface-steel-deep);
+    animation:lamp-breathe 3.2s ease-in-out infinite}
+  .lamp:nth-child(1){animation-delay:0s}
+  .lamp:nth-child(2){animation-delay:.16s}
+  .lamp:nth-child(3){animation-delay:.32s}
+  .lamp:nth-child(4){animation-delay:.48s}
+  .lamp:nth-child(5){animation-delay:.64s}
+  .lamp:nth-child(6){animation-delay:.8s}
+  .lamp:nth-child(7){animation-delay:.96s}
+  .lamp:nth-child(8){animation-delay:1.12s}
+  .lamp:nth-child(9){animation-delay:1.28s}
+  .lamp:nth-child(10){animation-delay:1.44s}
+  @keyframes lamp-breathe{
+    0%,45%{background:var(--surface-steel-deep);border-color:var(--edge)}
+    55%,100%{background:var(--paper-hi);border-color:var(--ink)}
+  }
+  .lamp-grid[data-state="warn"] .lamp{animation-duration:1.1s}
+  .lamp-grid[data-state="wait"] .lamp{animation-duration:4.6s;opacity:.55}
+  .lamp-grid[data-state="down"] .lamp{animation:none;background:var(--surface-steel-deep);
+    border-color:var(--hair);border-style:dashed;opacity:.75}
+
+  /* ── 链路监视 ─────────────────────────────── */
+  .monitor{margin:0 0 14px;border:1px solid var(--ink);background:rgba(255,255,255,.1);flex:none}
+  .monitor .panel-head{align-items:center}
+  .monitor-body{display:grid;grid-template-columns:1.1fr 1fr;border-top:1px solid var(--line);min-height:96px}
+  .hop-panel{padding:8px 10px;border-right:1px solid var(--line);min-width:0}
+  .stat-panel{padding:8px 10px;min-width:0}
+  .hop-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;
+    font:700 11px/1.3 var(--mono);letter-spacing:.03em;margin-bottom:5px}
+  .hop-head span{color:var(--mute);font-weight:400}
+  .hop-row{display:grid;grid-template-columns:54px 1fr 58px;gap:7px;align-items:center;padding:2px 0;
+    font:400 11px/1.25 var(--mono)}
+  .hop-row b{font-weight:700;letter-spacing:.04em}
+  .hop-row .hop-ms{text-align:right;font-variant-numeric:tabular-nums}
+  .hop-bar{height:8px;background:var(--surface-paper-low);border:1px solid var(--line);position:relative;overflow:hidden}
+  .hop-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+  .hop-row.bad .hop-bar i{background:repeating-linear-gradient(45deg,var(--ink) 0 2px,transparent 2px 4px)}
+  .hop-note{grid-column:2 / -1;font:400 11px/1.3 var(--mono);color:var(--mute);margin-top:-1px}
+  .hop-line{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+  #lockRows{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 10px}
+  .stat-grid div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted var(--line);
+    padding:2px 0;font:400 11px/1.35 var(--mono)}
+  .stat-grid span{color:var(--mute)}
+  .stat-grid b{font-weight:700;font-variant-numeric:tabular-nums}
+  .monitor-empty{padding:14px 4px;font:700 11px/1.5 var(--mono);color:var(--mute);letter-spacing:.03em;text-align:center}
+
+  /* ── 操作台（价目 / 出口 / OC / 用量）─────────── */
+  .grid-ops{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0}
+  .ops-body{padding:8px 10px;min-width:0}
+  .ops-body .kv:first-child{border-top:0}
+  .inline-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:7px;align-items:end;margin-bottom:7px}
+  .inline-form .field{margin:0}
+  .inline-form .field input,.inline-form .field select{min-height:28px;padding:4px 6px}
+  .mini-table{width:100%;border-collapse:collapse}
+  .mini-table th,.mini-table td{text-align:left;padding:3px 5px;border-bottom:1px solid var(--line);font-size:12px;vertical-align:middle}
+  .mini-table th{font:700 11px/1.2 var(--sans);letter-spacing:.02em;color:var(--mute);border-bottom:1px solid var(--hair);white-space:nowrap}
+  .mini-table tbody tr:last-child td{border-bottom:0}
+  .mini-table tbody tr:hover td{background:rgba(16,16,16,.055)}
+  .mini-table td.mono{font:400 11px/1.3 var(--mono)}
+  .mini-table .row-acts{display:flex;gap:4px;flex-wrap:wrap}
+  .mini-table .row-acts .btn-sm{padding:3px 5px;min-height:24px;font-size:11px}
+  .mini-scroll{max-height:186px;overflow:auto;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+  .chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--hair);
+    background:rgba(255,255,255,.2);padding:1px 3px 1px 6px;font:700 11px/1.35 var(--mono);letter-spacing:.02em}
+  .chip em{font-style:normal;color:var(--mute);font-weight:400}
+  .chip button{min-height:28px;min-width:28px;padding:0 4px;border:0;font:700 11px/1 var(--mono);background:transparent;color:var(--mute)}
+  .chip button:hover{background:var(--ink);color:var(--paper-hi)}
+  .chip.s-strong{border-width:2px}
+  .bar-row{display:grid;grid-template-columns:42px 1fr 46px;gap:6px;align-items:center;
+    font:400 11px/1.3 var(--mono);padding:1px 0}
+  .bar-track{height:9px;background:var(--surface-paper-low);border:1px solid var(--line)}
+  .bar-track i{display:block;height:100%;background:var(--ink)}
+  .range-acts{display:flex;gap:4px;flex-wrap:wrap}
+  .range-acts .btn-sm{padding:3px 6px;min-height:24px;font-size:11px}
+  .range-acts .btn-sm[aria-pressed="true"]{background:var(--ink);color:var(--paper-hi)}
+  .mono-sm{font:400 11px/1.35 var(--mono);color:var(--mute)}
+  .stream td.unit{font:400 11px/1.25 var(--mono);white-space:nowrap;text-align:right}
+  .stream td.unit em{font-style:normal;color:var(--mute)}
+  @media (max-width:1080px){
+    .grid-ops{grid-template-columns:1fr}
+    .monitor-body{grid-template-columns:1fr}
+    .hop-panel{border-right:0;border-bottom:1px solid var(--line)}
+  }
+
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* 紧凑档（窄屏幕 / 矮视角）：1366×768 这类笔记本不会只剩 400px 版心。
+     只压外围留白与容器内边距——字号不下探 L0 的 11px，报头守住 L6 的 48px 下限，
+     交互热区仍 ≥28px，所以压的是空白而不是可读性。 */
+  @media (max-height:820px), (max-width:1440px){
+    body{padding:10px 14px}
+    .sheet{height:calc(100vh - 20px)}
+    .masthead{padding-bottom:6px;gap:16px}
+    h1{font-size:48px;margin:4px 0 2px}
+    .sub{font-size:11px;line-height:1.35}
+    .stamp-row{padding:3px 8px}
+    .rule{padding:3px 0;margin-bottom:8px}
+    .tiles{margin-bottom:10px}
+    .tile{padding:7px 12px 6px}
+    .tile .val{font-size:26px;margin:4px 0 1px}
+    .workspace{gap:10px}
+    .panel-head{padding:5px 8px}
+    .panel-head h2{font-size:16px}
+    th,td{padding:5px 8px}
+    .catalog-wrap{max-height:236px}
+    .route-list{max-height:140px}
+    .stream{min-height:140px}
+    footer{padding-top:6px}
+  }
+
+  @media (max-width:1080px){
+    .grid{grid-template-columns:1fr 1fr}
+    .grid .panel:first-child{grid-column:1 / -1}
+    .grid .panel:last-child{grid-column:1 / -1}
+    .tiles{grid-template-columns:1fr 1fr}
+    .tile:nth-child(2){border-right:0}
+    .tile:nth-child(1),.tile:nth-child(2){border-bottom:1px solid var(--line)}
+  }
+  @media (max-width:720px){
+    html{height:auto;overflow:auto}
+    body{height:auto;overflow:auto;padding:14px 12px 24px}
+    .sheet{height:auto}
+    .workspace{overflow:visible;padding-right:0}
+    .masthead{flex-direction:column;align-items:flex-start}
+    .stamp{width:100%}
+    .grid,.tiles{grid-template-columns:1fr}
+    .tile{border-right:0;border-bottom:1px solid var(--line)}
+    .stream{overflow-x:auto}
+    .stream .hide-sm{display:none}
+    footer{flex-direction:column;align-items:flex-start}
+    .drawer{width:100vw}
+    .field-row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+
+  <header class="masthead">
+    <div class="brand">
+      <div class="kicker">KWSA / Gateway Engineering · Lite</div>
+      <h1>KWSA <span>LITE</span></h1>
+      <p class="sub">Single-process reverse proxy · authenticated console</p>
+    </div>
+    <div class="stamp" aria-label="构建信息">
+      <div class="stamp-row"><span>BUILD</span><b id="buildVersion">—</b></div>
+      <div class="stamp-row"><span>LISTEN</span><b id="listenPort">:8798</b></div>
+      <div class="stamp-row"><span>DATA</span><b class="mock" id="dataBadge">CONNECTING</b></div>
+      <div class="stamp-row"><span>PANEL</span><b id="panelUser">—</b><span class="stamp-acts"><button type="button" class="btn-sm" id="securityBtn">安全</button><button type="button" class="btn-sm" id="logoutBtn">退出</button></span></div>
+    </div>
+  </header>
+
+  <div class="rule">
+    <span><i class="dot"></i>ISSUE 001 / LIVE CONSOLE</span>
+    <span id="stampTime">—</span>
+    <span class="rule-acts">LIVE READ · AUTHENTICATED CONTROL
+      <select id="tzPick" aria-label="时间窗时区">
+        <option value="cst">北京 UTC+8</option>
+        <option value="pst">美西 UTC-8</option>
+        <option value="est">美东 UTC-4</option>
+      </select>
+    </span>
+  </div>
+
+  <div class="pending" id="pending" role="status" aria-live="polite" hidden>
+    <b>读数未到 / READINGS PENDING</b>
+    <span id="pendingText">网关未响应，保留占位，不补 0。</span>
+  </div>
+
+  <section class="tiles" aria-label="运行指标">
+    <div class="tile">
+      <div class="lab"><span>运行态势 / STATUS</span><span class="ok off" id="statusTag">CONNECTING</span></div>
+      <div class="val"><span data-tile="uptime">—</span><small>UPTIME</small></div>
+      <div class="note" id="statusNote">PID — · 单实例锁 · —</div>
+    </div>
+    <div class="tile">
+      <div class="lab"><span>今日请求 / REQUESTS</span><span class="mono">TODAY</span></div>
+      <div class="val"><span data-tile="requests">—</span><small>REQ</small></div>
+      <div class="note" id="reqNote">错误 — · 未计价 —</div>
+    </div>
+    <div class="tile">
+      <div class="lab"><span>令牌 / TOKENS</span><span class="mono">IN / CACHE / OUT</span></div>
+      <div class="val"><span data-tile="tokens">—</span><small>IN</small></div>
+      <div class="note"><span data-tile="tokensCache">—</span> CACHE · <span data-tile="tokensOut">—</span> OUT</div>
+    </div>
+    <div class="tile">
+      <div class="lab"><span>今日支出 / SPEND</span><span class="mono">CNY</span></div>
+      <div class="val">¥<span data-tile="spend">—</span><small>DAY</small></div>
+      <div class="note" id="spendNote">峰 — · 谷 — · 平价 —</div>
+    </div>
+  </section>
+
+  <div class="workspace">
+
+  <section class="monitor" aria-label="链路监视">
+    <div class="panel-head">
+      <h2>链路监视</h2>
+      <div class="head-actions">
+        <div class="lamp-grid" id="lampGrid" data-state="wait" aria-hidden="true"><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i><i class="lamp"></i></div>
+        <span class="en">Middle Layer</span>
+        <select id="probeTarget" aria-label="探测渠道"></select>
+        <button type="button" class="btn-sm btn-dark" id="chainProbeBtn">实测链路</button>
+      </div>
+    </div>
+    <div class="monitor-body">
+      <div class="hop-panel">
+        <div class="hop-head"><b id="hopTitle">链路分段</b><span id="hopStamp">尚未实测</span></div>
+        <div id="hopPanel"><div class="monitor-empty">点右上「实测链路」跑一次 DNS / TCP / TLS / 首字节</div></div>
+      </div>
+      <div class="stat-panel">
+        <div class="hop-head"><b>中位 / 尾部耗时</b><span id="statStamp">—</span></div>
+        <div class="stat-grid" id="statGrid">
+          <div><span>路由</span><b>—</b></div><div><span>上游</span><b>—</b></div>
+          <div><span>首字节</span><b>—</b></div><div><span>总耗时</span><b>—</b></div>
+        </div>
+        <div class="kv"><span>在途 / 累计</span><b id="inflight">—</b></div>
+        <div class="hop-head" style="margin-top:5px"><b>最近路由</b><span id="hopRecentNote">—</span></div>
+        <div id="hopRecent" class="mono-sm" style="max-height:62px;overflow:auto"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>上游通道</h2>
+        <div class="head-actions">
+          <span class="en">Upstream / 02</span>
+          <button type="button" class="btn-sm btn-dark" id="addChannelBtn">＋ 收录渠道</button>
+        </div>
+      </div>
+      <table>
+        <caption class="sr">上游通道状态与收录入口</caption>
+        <thead>
+          <tr><th>通道</th><th>上游主机</th><th>状态</th><th class="num">延迟</th><th class="num">今日</th><th>操作</th></tr>
+        </thead>
+        <tbody id="channelRows">
+          <tr><td colspan="6" class="empty">读数加载中 / READINGS PENDING</td></tr>
+        </tbody>
+      </table>
+      <div class="kv" style="margin:0 12px;border-top:1px solid var(--line)">
+        <span>路由编排</span><b id="routeInfo">—</b>
+      </div>
+      <div class="kv" style="margin:0 12px;border-top:1px dotted var(--line)">
+        <span>官方凭据</span><b id="officialInfo">—</b>
+      </div>
+      <div class="kv" style="margin:0 12px;border-top:1px dotted var(--line)">
+        <span>探针</span><b id="probeInfo">—</b>
+      </div>
+      <div class="kv" style="margin:0 12px 10px;border-top:1px dotted var(--line)">
+        <span>配置热重载</span><b id="configFile">—</b>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>模型目录</h2>
+        <div class="head-actions">
+          <input id="catalogFilter" type="search" placeholder="搜模型 / 渠道" aria-label="筛选模型目录" autocomplete="off">
+          <label class="off-only" for="catalogOffOnly"><input id="catalogOffOnly" type="checkbox">仅不可用</label>
+          <span class="en">Catalog / Price</span>
+          <span class="tag ghost" id="pricingMode">—</span>
+        </div>
+      </div>
+      <div class="unavail" id="unavailBlock" hidden>
+        <div class="unavail-head">
+          <b id="unavailTitle">—</b>
+          <span>Why Off</span>
+        </div>
+        <div id="unavailRows"></div>
+      </div>
+      <div class="catalog-wrap">
+        <table class="catalog-table">
+          <caption class="sr">模型目录、峰谷价与启用状态</caption>
+          <thead>
+            <tr><th>模型</th><th>通道</th><th class="num">峰价 IN/CA/OUT</th><th class="num">谷价 IN/CA/OUT</th><th>状态</th><th>操作</th></tr>
+          </thead>
+          <tbody id="catalogRows">
+            <tr><td colspan="6" class="empty">读数加载中 / READINGS PENDING</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="kv" style="margin:0 12px 10px;border-top:1px solid var(--line)">
+        <span>价目口径</span><b id="pricingNote">—</b>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>路由矩阵</h2>
+        <span class="en">Route / Check</span>
+      </div>
+      <div class="route-list" id="routeRows">
+        <div class="empty">读数加载中 / READINGS PENDING</div>
+      </div>
+      <div class="matrix-body" style="max-height:186px;overflow:auto;padding:2px 10px 6px;border-top:1px dotted var(--line)">
+        <div class="inline-form" style="margin:6px 0 4px">
+          <div class="field"><label for="mxGroup">分组</label><select id="mxGroup"></select></div>
+          <div class="field"><label for="mxGroupName">新组名</label><input id="mxGroupName" placeholder="仅新建时填"></div>
+          <div class="field"><label for="mxChannel">渠道</label><select id="mxChannel"></select></div>
+          <div class="field"><label for="mxModel">模型</label><input id="mxModel" list="mxModels" placeholder="deepseek-v4-pro"><datalist id="mxModels"></datalist></div>
+          <div class="field"><label for="mxTier">档位</label><select id="mxTier"><option value="strong">strong</option><option value="weak" selected>weak</option></select></div>
+          <div class="field"><label for="mxPriority">优先级</label><input id="mxPriority" type="number" min="1" value="10" inputmode="numeric"></div>
+          <div class="field"><label>&nbsp;</label><button type="button" class="btn-sm btn-dark" id="mxAdd">加入分组</button></div>
+          <div class="field"><label>&nbsp;</label><button type="button" class="btn-sm danger" id="mxDelete">删除分组</button></div>
+        </div>
+        <div class="hop-head" style="margin-top:2px"><b>任务锁</b><span id="lockNote">—</span></div>
+        <div id="lockRows" class="mono-sm"></div>
+      </div>
+      <div class="kv" style="margin:0 12px;border-top:1px solid var(--line)">
+        <span>路由自检</span><b id="routeCheck">—</b>
+      </div>
+      <div class="official-block">
+        <div class="subhead">
+          <h3>官方账单接口</h3>
+          <span class="tag ghost" id="officialStamp">NOT CONNECTED</span>
+        </div>
+        <div class="kv" style="border-top:1px dotted var(--line)"><span>参数完整</span><b id="officialCount">—</b></div>
+        <div class="note" id="officialNote">只存参数，不发起请求。</div>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="grid-ops">
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>价目维护</h2>
+        <div class="head-actions"><span class="en">Pricing / Peak</span><span class="tag ghost" id="priceMode">—</span></div>
+      </div>
+      <div class="ops-body">
+        <div class="inline-form">
+          <div class="field"><label for="pcChannel">渠道</label><select id="pcChannel"></select></div>
+          <div class="field"><label for="pcModel">模型</label><input id="pcModel" list="pcModels" placeholder="deepseek-v4-pro"><datalist id="pcModels"></datalist></div>
+          <div class="field"><label for="pcIn">峰 IN</label><input id="pcIn" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+          <div class="field"><label for="pcCache">峰 CA</label><input id="pcCache" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+          <div class="field"><label for="pcOut">峰 OUT</label><input id="pcOut" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+          <div class="field"><label for="pcOffIn">谷 IN</label><input id="pcOffIn" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+          <div class="field"><label for="pcOffCache">谷 CA</label><input id="pcOffCache" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+          <div class="field"><label for="pcOffOut">谷 OUT</label><input id="pcOffOut" type="number" min="0" step="0.0001" inputmode="decimal"></div>
+          <div class="field"><label for="pcStart">峰窗起 UTC</label><input id="pcStart" type="number" min="0" max="23" value="12" inputmode="numeric"></div>
+          <div class="field"><label for="pcEnd">峰窗止 UTC</label><input id="pcEnd" type="number" min="1" max="24" value="18" inputmode="numeric"></div>
+        </div>
+        <div class="sec-inline">
+          <button type="button" class="btn-sm btn-dark" id="priceSave">保存单价</button>
+          <button type="button" class="btn-sm" id="priceRule">应用峰窗</button>
+          <button type="button" class="btn-sm" id="priceClearRule">改单一价</button>
+        </div>
+        <div class="mono-sm" id="priceMsg">金额 = (IN−CA)×峰IN + CA×峰CA + OUT×峰OUT（谷价同理，USD 按 7.2 折人民币）。</div>
+        <div class="mini-scroll" style="margin-top:6px">
+          <table class="mini-table">
+            <caption class="sr">已配置的峰谷价目</caption>
+            <thead><tr><th>模型</th><th>渠道</th><th class="num">峰 IN/CA/OUT</th><th class="num">谷 IN/CA/OUT</th><th>操作</th></tr></thead>
+            <tbody id="priceRows"><tr><td colspan="5" class="empty">读取中</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>出口分路</h2>
+        <div class="head-actions"><span class="en">Egress Legs</span><span class="tag ghost" id="egressStamp">—</span></div>
+      </div>
+      <div class="ops-body">
+        <div class="inline-form">
+          <div class="field"><label for="legId">腿代号</label><input id="legId" placeholder="hk-leg"></div>
+          <div class="field"><label for="legName">名称</label><input id="legName" placeholder="香港出口"></div>
+          <div class="field"><label for="legUrl">代理地址</label><input id="legUrl" placeholder="http://127.0.0.1:7890"></div>
+          <div class="field"><label for="legEnabled">状态</label><select id="legEnabled"><option value="1">启用</option><option value="0">停用</option></select></div>
+          <div class="field"><label>&nbsp;</label><button type="button" class="btn-sm btn-dark" id="legSave">保存腿</button></div>
+        </div>
+        <div class="inline-form">
+          <div class="field"><label for="bindChannel">渠道绑定</label><select id="bindChannel"></select></div>
+          <div class="field"><label for="bindLeg">出口</label><select id="bindLeg"></select></div>
+          <div class="field"><label>&nbsp;</label><button type="button" class="btn-sm" id="bindSave">应用绑定</button></div>
+          <div class="field"><label for="legDefault">全局默认</label><select id="legDefault"></select></div>
+        </div>
+        <div class="mini-scroll">
+          <table class="mini-table">
+            <caption class="sr">出口分路列表</caption>
+            <thead><tr><th>腿</th><th>代理地址</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="legRows"><tr><td colspan="4" class="empty">尚未配置，全部直连</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>OC 免费档桥</h2>
+        <div class="head-actions"><span class="en">OC Bridge</span><span class="tag ghost" id="ocStamp">OFF</span></div>
+      </div>
+      <div class="ops-body">
+        <div class="inline-form">
+          <div class="field"><label for="ocMode">接法</label><select id="ocMode"><option value="bridge">打外部直连桥</option><option value="direct">lite 自补门禁</option></select></div>
+          <div class="field"><label for="ocChannel">渠道代号</label><input id="ocChannel" value="oc-bridge"></div>
+          <div class="field"><label for="ocBridge">桥地址</label><input id="ocBridge" placeholder="http://127.0.0.1:8898/v1"></div>
+          <div class="field"><label for="ocToken">桥 token</label><input id="ocToken" type="password" placeholder="留空沿用" autocomplete="new-password"></div>
+          <div class="field"><label for="ocEgress">出口</label><select id="ocEgress"></select></div>
+        </div>
+        <div class="field"><label for="ocModels">模型清单（一行一个）</label><textarea id="ocModels" style="min-height:50px" placeholder="deepseek-v4.1-flash-free"></textarea></div>
+        <div class="sec-inline">
+          <button type="button" class="btn-sm btn-dark" id="ocSave">保存并应用</button>
+          <button type="button" class="btn-sm" id="ocToggle">开启</button>
+          <button type="button" class="btn-sm" id="ocProbe">探活</button>
+        </div>
+        <div class="mono-sm" id="ocMsg">桥模式：门禁与 session 由直连桥负责，lite 只转请求。直连模式：lite 自补门禁头，出口被烧会永久 403。</div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-head">
+        <h2>用量查账</h2>
+        <div class="head-actions">
+          <span class="en">Ledger / Window</span>
+          <div class="range-acts" id="usageModes">
+            <button type="button" class="btn-sm" data-mode="channel" aria-pressed="true">渠道</button>
+            <button type="button" class="btn-sm" data-mode="model">模型</button>
+          </div>
+          <div class="range-acts" id="usageRanges">
+            <button type="button" class="btn-sm" data-span="3600">1H</button>
+            <button type="button" class="btn-sm" data-span="86400" aria-pressed="true">24H</button>
+            <button type="button" class="btn-sm" data-span="604800">7D</button>
+            <button type="button" class="btn-sm" data-span="2592000">30D</button>
+          </div>
+          <button type="button" class="btn-sm" id="usageCsv" title="导出当前窗口为 CSV">CSV</button>
+        </div>
+      </div>
+      <div class="ops-body">
+        <div class="kv"><span>窗口</span><b id="usageWindow">—</b></div>
+        <div class="kv"><span>请求 / 错误 / 未计价</span><b id="usageTotals">—</b></div>
+        <div class="kv"><span>令牌 IN/CA/OUT</span><b id="usageTokens">—</b></div>
+        <div class="kv"><span>金额</span><b id="usageCost">—</b></div>
+        <div class="mini-scroll" style="margin-top:6px">
+          <table class="mini-table">
+            <caption class="sr">时间窗内按渠道汇总</caption>
+            <thead><tr><th id="usageHead">渠道</th><th class="num">请求</th><th class="num">错误</th><th class="num">令牌</th><th class="num">¥</th></tr></thead>
+            <tbody id="usageRows"><tr><td colspan="5" class="empty">读取中</td></tr></tbody>
+          </table>
+        </div>
+        <div class="hop-head" style="margin-top:6px"><b>按小时分布</b><span id="usageHourNote">—</span></div>
+        <div id="usageHours" class="flow-scroll" style="max-height:84px"></div>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="panel stream">
+    <div class="panel-head">
+      <h2>实时流水</h2>
+      <div class="head-actions">
+        <select id="streamChannel" aria-label="流水渠道筛选"><option value="">全部渠道</option></select>
+        <select id="streamState" aria-label="流水状态筛选"><option value="">全部状态</option><option value="err">仅失败</option></select>
+        <button type="button" class="btn-sm" id="streamCsv" title="导出最近 30 条为 CSV">CSV</button>
+        <span class="en">Live Ingress / Last 30</span>
+      </div>
+    </div>
+    <div class="table-wrap">
+    <table>
+      <caption class="sr">最近请求流水</caption>
+      <thead>
+        <tr>
+          <th>时刻</th><th>REQ ID</th><th>通道</th><th>模型</th><th>状态</th><th>峰谷</th>
+          <th class="num hide-sm">单价 IN/CA/OUT</th>
+          <th class="num">延迟</th><th class="num hide-sm">TTFT</th><th class="num">IN/CA/OUT</th><th class="num">成本</th>
+        </tr>
+      </thead>
+      <tbody id="streamBody">
+        <tr><td colspan="11" class="empty">读数加载中 / READINGS PENDING</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  </div>
+
+  <footer>
+    <p>LIVE CONSOLE · 数据来自本机 SQLite 账本与探针 · 收录/启停需登录<br>
+    KWSA LITE / 单进程 · 纯标准库 · 默认 8798 · 8792 永久禁用</p>
+    <div class="acts">
+      <button type="button" id="refreshBtn">重新读数 / Refresh</button>
+    </div>
+  </footer>
+
+</main>
+
+<div class="scrim" id="drawerScrim" hidden></div>
+<aside class="drawer" id="channelDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" hidden>
+  <header class="drawer-head">
+    <div>
+      <div class="kicker">Channel Intake / 渠道收录</div>
+      <h2 id="drawerTitle">收录上游渠道</h2>
+    </div>
+    <button type="button" class="btn-sm" id="drawerClose" aria-label="关闭抽屉">关闭 ESC</button>
+  </header>
+  <form id="channelForm" class="drawer-body" novalidate>
+    <div class="field-row">
+      <div class="field">
+        <label for="fName">渠道代号 *</label>
+        <input id="fName" name="name" required maxlength="64" placeholder="my-upstream" autocomplete="off">
+        <span class="hint">字母数字 . _ -；保存后不可改</span>
+      </div>
+      <div class="field">
+        <label for="fBase">上游地址 *</label>
+        <input id="fBase" name="base_url" required placeholder="https://host/v1" autocomplete="off">
+        <span class="hint">base 已带 /v1 时不再重复</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fToken">渠道密钥</label>
+      <input id="fToken" name="token" type="password" placeholder="留空 = 沿用已存密钥" autocomplete="new-password">
+      <span class="hint" id="tokenHint">只写入本机加密密钥仓，不回显</span>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="fTokenEnv">密钥环境变量</label>
+        <input id="fTokenEnv" name="token_env" placeholder="HUB_MODEL_TOKEN" autocomplete="off">
+        <span class="hint">环境变量优先于密钥仓</span>
+      </div>
+      <div class="field">
+        <label for="fProbe">探针路径</label>
+        <input id="fProbe" name="probe_path" value="/health" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <details>
+        <summary>官方账单登录（接口预留，不取数）</summary>
+        <div class="field">
+          <label for="fLoginUrl">登录地址</label>
+          <input id="fLoginUrl" name="login_url" placeholder="https://host/auth/login" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="fUsagePath">账单路径</label>
+          <input id="fUsagePath" name="usage_path" placeholder="/api/usage" autocomplete="off">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="fLoginUser">登录账号</label>
+            <input id="fLoginUser" name="login_user" placeholder="账号或邮箱" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="fLoginPass">登录密码</label>
+            <input id="fLoginPass" name="login_password" type="password" placeholder="留空 = 沿用已存" autocomplete="new-password">
+          </div>
+        </div>
+        <span class="hint" id="loginHint">账号密码只进加密密钥仓；本版本保存后不发起官方请求。</span>
+        <label class="checkline" style="margin-top:4px"><input type="checkbox" id="fClearLogin"> 清除已存账号密码</label>
+      </details>
+    </div>
+    <div class="field">
+      <label for="fModels">模型清单</label>
+      <textarea id="fModels" name="models" placeholder="一行一个，或用逗号分隔"></textarea>
+      <span class="hint">「探测模型」会读取上游 /v1/models 并回填</span>
+    </div>
+    <div class="field">
+      <details>
+        <summary>模型别名（客户端名 = 上游名）</summary>
+        <textarea id="fAliases" name="aliases" placeholder="gpt-4o = deepseek-v4-pro"></textarea>
+        <span class="hint">一行一条；客户端发左边，网关改写成右边并沿用本渠道</span>
+      </details>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="fEndpoint">端点路径</label>
+        <input id="fEndpoint" name="endpoint" placeholder="/v1/chat/completions" autocomplete="off">
+        <span class="hint">决策模型填 /v1/systemone</span>
+      </div>
+      <div class="field">
+        <label for="fPricing">价目渠道键</label>
+        <input id="fPricing" name="pricing_channel" placeholder="默认同渠道代号" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <details>
+        <summary>自定义出站头（仅 env:VAR）</summary>
+        <textarea id="fHeaders" name="headers" placeholder="x-api-key: env:MY_KEY"></textarea>
+        <span class="hint">不写明文密钥；变量缺失时不注入空头</span>
+      </details>
+    </div>
+    <div class="checkline">
+      <label><input type="checkbox" id="fEnabled" name="enabled" checked> 启用该渠道</label>
+      <label><input type="checkbox" id="fDefault" name="make_default"> 设为首选渠道</label>
+    </div>
+    <div class="drawer-msg" id="drawerMsg" data-state="">填写上游参数后保存；密钥不会回显。</div>
+  </form>
+  <footer class="drawer-foot">
+    <button type="button" class="btn-sm" id="probeBtn">探测模型</button>
+    <button type="button" class="btn-sm danger" id="deleteChannelBtn">删除渠道</button>
+    <span style="flex:1"></span>
+    <button type="button" class="btn-sm" id="cancelChannelBtn">取消</button>
+    <button type="submit" form="channelForm" class="btn-sm btn-dark" id="saveChannelBtn">保存并收录</button>
+  </footer>
+</aside>
+
+<aside class="drawer security-drawer" id="securityDrawer" role="dialog" aria-modal="true" aria-labelledby="securityTitle" hidden>
+  <header class="drawer-head">
+    <div>
+      <div class="kicker">Panel Security / 安全控制</div>
+      <h2 id="securityTitle">面板安全</h2>
+    </div>
+    <button type="button" class="btn-sm" id="securityClose" aria-label="关闭安全抽屉">关闭 ESC</button>
+  </header>
+  <div class="drawer-body">
+    <section class="sec-block">
+      <div class="sec-head">
+        <h3>面板口令</h3>
+        <span class="tag ghost" id="secUserTag">ADMIN</span>
+      </div>
+      <div class="sec-body">
+        <form id="passwordForm" novalidate>
+          <div class="field">
+            <label for="pwCurrent">当前口令 *</label>
+            <input id="pwCurrent" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="sec-grid">
+            <div class="field">
+              <label for="pwNew">新口令 *</label>
+              <input id="pwNew" type="password" autocomplete="new-password" minlength="10" required>
+              <span class="hint">至少 10 位；改密后其它会话立即失效</span>
+            </div>
+            <div class="field">
+              <label for="pwConfirm">再次输入 *</label>
+              <input id="pwConfirm" type="password" autocomplete="new-password" minlength="10" required>
+            </div>
+          </div>
+          <div class="sec-inline">
+            <button type="submit" class="btn-sm btn-dark" id="passwordBtn">更新口令</button>
+            <span class="sec-note" id="pwHint">只在本机写入 scrypt 哈希；不回显明文。</span>
+          </div>
+          <div class="drawer-msg" id="passwordMsg" data-state="">等待输入。</div>
+        </form>
+      </div>
+    </section>
+
+    <section class="sec-block">
+      <div class="sec-head">
+        <h3>数据面 KEY</h3>
+        <span class="tag ghost" id="keyGateStamp">—</span>
+      </div>
+      <div class="sec-body">
+        <p class="sec-note" id="keyNote">读取中 / READINGS PENDING</p>
+        <form id="keyForm" novalidate>
+          <div class="sec-grid">
+            <div class="field">
+              <label for="keyName">Key 名称 *</label>
+              <input id="keyName" maxlength="64" placeholder="例如 lan-console" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="keyRps">RPS</label>
+              <input id="keyRps" type="number" min="0.1" max="10000" step="0.1" inputmode="decimal">
+            </div>
+          </div>
+          <div class="sec-grid">
+            <div class="field">
+              <label for="keyBurst">BURST</label>
+              <input id="keyBurst" type="number" min="0.1" max="10000" step="0.1" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button type="submit" class="btn-sm btn-dark" id="keyCreateBtn">签发 KEY</button>
+            </div>
+          </div>
+          <div class="drawer-msg" id="keyMsg" data-state="">密钥只显示一次；服务端只保存哈希。</div>
+        </form>
+        <div class="key-secret" id="keySecret" hidden>
+          <code id="keySecretValue"></code>
+          <button type="button" class="btn-sm" id="copyKeyBtn">复制</button>
+        </div>
+        <div class="sec-note" style="margin-top:8px">接入地址 <code id="accessBase">—</code></div>
+        <code class="mono-sm" id="accessCurl" style="display:block;white-space:pre-wrap;word-break:break-all;margin:2px 0 6px">—</code>
+        <button type="button" class="btn-sm" id="copyAccessBtn">复制 curl</button>
+        <div class="audit-wrap" style="max-height:220px">
+          <table class="sec-table">
+            <caption class="sr">数据面客户端 Key 列表</caption>
+            <thead><tr><th>KEY</th><th class="num">RPS / BURST</th><th>最近使用</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="keyRows"><tr><td colspan="5" class="sec-empty">读取中 / READINGS PENDING</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec-block">
+      <div class="sec-head">
+        <h3>登录与改密审计</h3>
+        <div class="sec-inline" style="margin:0">
+          <select id="auditFilter" aria-label="审计事件筛选">
+            <option value="">全部事件</option>
+            <option value="login_success">登录成功</option>
+            <option value="login_failed">登录失败</option>
+            <option value="login_throttled">登录熔断</option>
+            <option value="logout">退出</option>
+            <option value="password_changed">改密成功</option>
+            <option value="password_change_failed">改密失败</option>
+            <option value="client_key_created">签发 KEY</option>
+            <option value="client_key_toggled">启停 KEY</option>
+            <option value="client_key_revoked">吊销 KEY</option>
+          </select>
+          <button type="button" class="btn-sm" id="auditRefresh">刷新</button>
+        </div>
+      </div>
+      <div class="sec-body">
+        <div class="audit-wrap">
+          <table class="sec-table">
+            <caption class="sr">登录、改密与数据面 Key 安全审计</caption>
+            <thead><tr><th>时刻</th><th>事件</th><th>账号</th><th>客户端</th><th>备注</th></tr></thead>
+            <tbody id="auditRows"><tr><td colspan="5" class="sec-empty">读取中 / READINGS PENDING</td></tr></tbody>
+          </table>
+        </div>
+        <p class="sec-note" style="margin:7px 0 0">审计只记事件与来源，不记口令、会话或 Key 明文。</p>
+      </div>
+    </section>
+  </div>
+</aside>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(sel, root){ return (root || document).querySelector(sel); };
+  var $$ = function(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var pending = document.getElementById("pending");
+  var pendingText = document.getElementById("pendingText");
+  var stamp = document.getElementById("stampTime");
+  var dataBadge = document.getElementById("dataBadge");
+  var refreshBtn = document.getElementById("refreshBtn");
+  var statusTag = document.getElementById("statusTag");
+  var addChannelBtn = document.getElementById("addChannelBtn");
+  var drawer = document.getElementById("channelDrawer");
+  var scrim = document.getElementById("drawerScrim");
+  var drawerTitle = document.getElementById("drawerTitle");
+  var drawerMsg = document.getElementById("drawerMsg");
+  var channelForm = document.getElementById("channelForm");
+  var fName = document.getElementById("fName");
+  var fBase = document.getElementById("fBase");
+  var fToken = document.getElementById("fToken");
+  var fTokenEnv = document.getElementById("fTokenEnv");
+  var fProbe = document.getElementById("fProbe");
+  var fModels = document.getElementById("fModels");
+  var fAliases = document.getElementById("fAliases");
+  var fEndpoint = document.getElementById("fEndpoint");
+  var fPricing = document.getElementById("fPricing");
+  var fHeaders = document.getElementById("fHeaders");
+  var fLoginUrl = document.getElementById("fLoginUrl");
+  var fUsagePath = document.getElementById("fUsagePath");
+  var fLoginUser = document.getElementById("fLoginUser");
+  var fLoginPass = document.getElementById("fLoginPass");
+  var fClearLogin = document.getElementById("fClearLogin");
+  var loginHint = document.getElementById("loginHint");
+  var fEnabled = document.getElementById("fEnabled");
+  var fDefault = document.getElementById("fDefault");
+  var tokenHint = document.getElementById("tokenHint");
+  var probeBtn = document.getElementById("probeBtn");
+  var deleteBtn = document.getElementById("deleteChannelBtn");
+  var saveChannelBtn = document.getElementById("saveChannelBtn");
+  var editingChannel = null;
+  var deleteArmed = false;
+  var deleteTimer = null;
+  var closeTimer = null;
+  var lastFocus = null;
+  var securityBtn = document.getElementById("securityBtn");
+  var securityDrawer = document.getElementById("securityDrawer");
+  var securityClose = document.getElementById("securityClose");
+  var securityFocus = null;
+  var securityTimer = null;
+  var authEnabled = true;
+  var keyDefaults = {rps: 20, burst: 40};
+  var revokeArmed = "";
+  var revokeTimer = null;
+  var passwordForm = document.getElementById("passwordForm");
+  var pwCurrent = document.getElementById("pwCurrent");
+  var pwNew = document.getElementById("pwNew");
+  var pwConfirm = document.getElementById("pwConfirm");
+  var passwordBtn = document.getElementById("passwordBtn");
+  var passwordMsg = document.getElementById("passwordMsg");
+  var pwHint = document.getElementById("pwHint");
+  var keyForm = document.getElementById("keyForm");
+  var keyName = document.getElementById("keyName");
+  var keyRps = document.getElementById("keyRps");
+  var keyBurst = document.getElementById("keyBurst");
+  var keyCreateBtn = document.getElementById("keyCreateBtn");
+  var keyMsg = document.getElementById("keyMsg");
+  var keyRows = document.getElementById("keyRows");
+  var keyNote = document.getElementById("keyNote");
+  var keyGateStamp = document.getElementById("keyGateStamp");
+  var keySecret = document.getElementById("keySecret");
+  var keySecretValue = document.getElementById("keySecretValue");
+  var copyKeyBtn = document.getElementById("copyKeyBtn");
+  var auditFilter = document.getElementById("auditFilter");
+  var auditRefresh = document.getElementById("auditRefresh");
+  var auditRows = document.getElementById("auditRows");
+  var secUserTag = document.getElementById("secUserTag");
+  var lampGrid = document.getElementById("lampGrid");
+  var probeTarget = document.getElementById("probeTarget");
+  var chainProbeBtn = document.getElementById("chainProbeBtn");
+  var hopTitle = document.getElementById("hopTitle");
+  var hopStamp = document.getElementById("hopStamp");
+  var hopPanel = document.getElementById("hopPanel");
+  var statGrid = document.getElementById("statGrid");
+  var statStamp = document.getElementById("statStamp");
+  var inflightEl = document.getElementById("inflight");
+  var hopRecent = document.getElementById("hopRecent");
+  var hopRecentNote = document.getElementById("hopRecentNote");
+  var lockRows = document.getElementById("lockRows");
+  var lockNote = document.getElementById("lockNote");
+  var tzPick = document.getElementById("tzPick");
+  var catalogFilter = document.getElementById("catalogFilter");
+  var catalogOffOnly = document.getElementById("catalogOffOnly");
+  var streamChannel = document.getElementById("streamChannel");
+  var streamState = document.getElementById("streamState");
+  var usageModes = document.getElementById("usageModes");
+  var usageHead = document.getElementById("usageHead");
+  var usageCsv = document.getElementById("usageCsv");
+  var streamCsv = document.getElementById("streamCsv");
+  var accessBase = document.getElementById("accessBase");
+  var accessCurl = document.getElementById("accessCurl");
+  var copyAccessBtn = document.getElementById("copyAccessBtn");
+  var priceRows = document.getElementById("priceRows");
+  var priceMode = document.getElementById("priceMode");
+  var priceMsg = document.getElementById("priceMsg");
+  var pcChannel = document.getElementById("pcChannel");
+  var pcModel = document.getElementById("pcModel");
+  var pcModels = document.getElementById("pcModels");
+  var pcIn = document.getElementById("pcIn");
+  var pcCache = document.getElementById("pcCache");
+  var pcOut = document.getElementById("pcOut");
+  var pcOffIn = document.getElementById("pcOffIn");
+  var pcOffCache = document.getElementById("pcOffCache");
+  var pcOffOut = document.getElementById("pcOffOut");
+  var pcStart = document.getElementById("pcStart");
+  var pcEnd = document.getElementById("pcEnd");
+  var legRows = document.getElementById("legRows");
+  var egressStamp = document.getElementById("egressStamp");
+  var legId = document.getElementById("legId");
+  var legName = document.getElementById("legName");
+  var legUrl = document.getElementById("legUrl");
+  var legEnabled = document.getElementById("legEnabled");
+  var bindChannel = document.getElementById("bindChannel");
+  var bindLeg = document.getElementById("bindLeg");
+  var legDefault = document.getElementById("legDefault");
+  var ocStamp = document.getElementById("ocStamp");
+  var ocMode = document.getElementById("ocMode");
+  var ocChannel = document.getElementById("ocChannel");
+  var ocBridge = document.getElementById("ocBridge");
+  var ocToken = document.getElementById("ocToken");
+  var ocEgress = document.getElementById("ocEgress");
+  var ocModels = document.getElementById("ocModels");
+  var ocMsg = document.getElementById("ocMsg");
+  var ocToggle = document.getElementById("ocToggle");
+  var usageWindow = document.getElementById("usageWindow");
+  var usageTotals = document.getElementById("usageTotals");
+  var usageTokens = document.getElementById("usageTokens");
+  var usageCost = document.getElementById("usageCost");
+  var usageRows = document.getElementById("usageRows");
+  var usageHours = document.getElementById("usageHours");
+  var usageHourNote = document.getElementById("usageHourNote");
+  var mxGroup = document.getElementById("mxGroup");
+  var mxGroupName = document.getElementById("mxGroupName");
+  var mxChannel = document.getElementById("mxChannel");
+  var mxModel = document.getElementById("mxModel");
+  var mxModels = document.getElementById("mxModels");
+  var mxTier = document.getElementById("mxTier");
+  var mxPriority = document.getElementById("mxPriority");
+
+  /* 时间窗：只改显示与切桶，不动账本里的时间戳 */
+  var TZ = {
+    cst: {off: 28800, label: "北京 UTC+8", short: "北京"},
+    pst: {off: -28800, label: "美西 UTC-8", short: "美西"},
+    est: {off: -14400, label: "美东 UTC-4", short: "美东"}
+  };
+  var tzKey = "cst";
+  try {
+    var savedTz = localStorage.getItem("kwsa_tz");
+    if(savedTz && TZ[savedTz]) tzKey = savedTz;
+  } catch(e){}
+  if(tzPick) tzPick.value = tzKey;
+  function tzOff(){ return TZ[tzKey].off; }
+  function fmtTs(ts){
+    if(ts === null || ts === undefined || ts === "") return "—";
+    var n = Number(ts);
+    if(!isFinite(n)) return "—";
+    var d = new Date((n + tzOff()) * 1000);
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth()+1) + "-" + pad(d.getUTCDate()) +
+      " " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + ":" + pad(d.getUTCSeconds());
+  }
+  function zoneHours(start, end){
+    return [["北京", 28800], ["美西", -28800], ["美东", -14400]].map(function(z){
+      var s = (Number(start) + z[1]/3600 + 24) % 24;
+      var e = (Number(end) + z[1]/3600 + 24) % 24;
+      return z[0] + " " + pad(Math.floor(s)) + "-" + pad(Math.floor(e));
+    }).join(" · ");
+  }
+  function peakSpans(p){
+    var rule = (p && p.rule) || {};
+    if(rule.kind === "utc_weekday_window"){
+      return "UTC " + pad(rule.start_hour) + "-" + pad(rule.end_hour) + " · " +
+        zoneHours(rule.start_hour, rule.end_hour);
+    }
+    return (p && p.rule_label) || "";
+  }
+  function fillSelect(sel, options, preferred){
+    if(!sel) return;
+    var prev = preferred !== undefined ? preferred : sel.value;
+    sel.textContent = "";
+    options.forEach(function(o){
+      var opt = document.createElement("option");
+      opt.value = o.value;
+      opt.textContent = o.label;
+      sel.appendChild(opt);
+    });
+    for(var i = 0; i < options.length; i++){
+      if(options[i].value === prev){ sel.value = prev; return; }
+    }
+  }
+
+  function pad(n){ return n < 10 ? "0" + n : "" + n; }
+  function clock(){
+    stamp.textContent = fmtTs(Date.now() / 1000);
+  }
+  function flash(el){
+    if(!el) return;
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
+  }
+  function fmtInt(n){
+    if(n === null || n === undefined) return "—";
+    return Number(n).toLocaleString("en-US");
+  }
+  function fmtCny(n){
+    if(n === null || n === undefined) return "—";
+    n = Number(n);
+    return (n > 0 && n < 0.01) ? n.toFixed(4) : n.toFixed(2);
+  }
+  function fmtPct(n){
+    if(n === null || n === undefined) return "—";
+    n = Number(n);
+    return (n > 0 && n < 0.1) ? n.toFixed(2) : n.toFixed(1);
+  }
+  function fmtUptime(sec){
+    if(sec === null || sec === undefined) return "—";   /* 未就绪不补 0：0h 00m 会被当成刚启动 */
+    sec = Number(sec) || 0;
+    return pad(Math.floor(sec/3600)) + "h " + pad(Math.floor(sec%3600/60)) + "m";
+  }
+  function setStatus(ok, text){
+    statusTag.textContent = text;
+    statusTag.className = "ok" + (ok ? "" : " off");
+  }
+  function hostOf(url){
+    try { return new URL(url).host; } catch(e){ return String(url || "—"); }
+  }
+  function cell(tr, text, cls){
+    var td = document.createElement("td");
+    if(cls) td.className = cls;
+    if(text !== null && text !== undefined) td.textContent = text;
+    tr.appendChild(td);
+    return td;
+  }
+  function sub(td, text){
+    var span = document.createElement("span");
+    span.className = "sub-cell";
+    span.textContent = text;
+    td.appendChild(span);
+  }
+  function tag(td, text, dark){
+    var span = document.createElement("span");
+    span.className = "tag" + (dark ? " inv" : "");
+    span.textContent = text;
+    td.appendChild(span);
+    return span;
+  }
+  function fmtRate(n){
+    if(n === null || n === undefined) return "—";
+    var v = Number(n);
+    if(!isFinite(v)) return "—";
+    if(v === 0) return "0";
+    return v >= 1 ? v.toFixed(2) : v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+  }
+  function priceTriple(band){
+    band = band || {};
+    return fmtRate(band.in) + "/" + fmtRate(band.cache) + "/" + fmtRate(band.out);
+  }
+  var catalogModels = [];
+  var unavailGroups = [];
+  var CODE_SHORT = {manual: "MANUAL", channel_off: "CHANNEL", upstream_plan: "PLAN",
+    upstream_denied: "DENIED", upstream_blocked: "BLOCK", upstream_missing: "GONE",
+    auth_error: "AUTH", rate_limited: "LIMIT", bridge_token: "BRIDGE",
+    probe_ok: "OK", upstream_error: "ERROR", network_error: "NET"};
+  function fmtAgo(ts){
+    if(!ts) return "";
+    var d = new Date(ts * 1000);
+    return pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " +
+      pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function unavailableTitle(u){
+    return [(u.reason || ""), (u.evidence || ""),
+            (u.fix ? "恢复：" + u.fix : ""),
+            (u.tested_at ? "实测 " + fmtAgo(u.tested_at) : "")]
+      .filter(Boolean).join(" · ");
+  }
+  function recheckGroup(group, btn){
+    var models = (group.models || []).slice(0, group.scope === "channel" ? 3 : 999);
+    if(!models.length) return;
+    var total = models.length, done = 0, okCount = 0, last = "";
+    var idle = group.scope === "channel" ? "抽样复检" : "复检本组";
+    btn.disabled = true;
+    function step(){
+      if(done >= total){
+        btn.disabled = false;
+        btn.textContent = idle;
+        if(group.scope === "channel"){
+          alert(okCount ? ("样本可用 " + okCount + "/" + total + " · 去渠道表启用 " + group.channel)
+                        : ("样本仍不可用 · " + (last || "见面板证据")));
+        }
+        load(true);
+        return;
+      }
+      btn.textContent = (done + 1) + "/" + total;
+      api("/api/control/model/probe", {channel: group.channel, model: models[done]})
+        .then(function(r){
+          if(r.ok) okCount++;
+          else last = ((r.code || "") + " " + (r.reason || "")).trim();
+        })
+        .catch(function(err){ last = err.message; })
+        .then(function(){ done++; step(); });
+    }
+    step();
+  }
+  function renderUnavailable(unavail){
+    var box = document.getElementById("unavailBlock");
+    var rows = document.getElementById("unavailRows");
+    var title = document.getElementById("unavailTitle");
+    unavailGroups = (unavail && unavail.groups) || [];
+    rows.textContent = "";
+    if(!unavailGroups.length){
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    title.textContent = "不可用 " + fmtInt(unavail.total_off) + " / " + fmtInt(unavail.total_models) +
+      (unavail.channels_off ? " · 渠道停用 " + fmtInt(unavail.channels_off) : "");
+    unavailGroups.forEach(function(g){
+      var row = document.createElement("div");
+      row.className = "unavail-row";
+      var code = document.createElement("span");
+      code.className = "code";
+      code.textContent = CODE_SHORT[g.code] || "OFF";
+      row.appendChild(code);
+      var what = document.createElement("span");
+      what.className = "what";
+      what.textContent = (g.label || g.code || "原因未记录") + " ";
+      var meta = document.createElement("em");
+      meta.textContent = fmtInt(g.count) + " 个 · " + g.channel +
+        (g.scope === "channel" ? "（整条渠道）" : "");
+      what.appendChild(meta);
+      what.title = unavailableTitle(g);
+      row.appendChild(what);
+      var fix = document.createElement("span");
+      fix.className = "fix";
+      var lead = document.createElement("b");
+      lead.textContent = "恢复 ";
+      fix.appendChild(lead);
+      fix.appendChild(document.createTextNode((g.fix || "未记录恢复路径") +
+        (g.evidence ? " · " + g.evidence : "") +
+        (g.tested_at ? " · 实测 " + fmtAgo(g.tested_at) : "")));
+      row.appendChild(fix);
+      if((g.models || []).length){
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn-sm recheck";
+        btn.textContent = g.scope === "channel" ? "抽样复检" : "复检本组";
+        btn.title = "真打 1-token 推理，把" + (g.scope === "channel" ? "前 3 个模型" : "本组 " + g.models.length + " 个模型") +
+          "的实测证据写回停用原因";
+        btn.addEventListener("click", function(){ recheckGroup(g, btn); });
+        row.appendChild(btn);
+      }
+      rows.appendChild(row);
+    });
+  }
+  function renderCatalog(catalog){
+    var tb = document.getElementById("catalogRows");
+    tb.textContent = "";
+    var models = (catalog && catalog.models) || [];
+    catalogModels = models;
+    var query = ((catalogFilter && catalogFilter.value) || "").trim().toLowerCase();
+    if(query){
+      models = models.filter(function(m){
+        return (String(m.id) + " " + String(m.channel)).toLowerCase().indexOf(query) >= 0;
+      });
+    }
+    if(catalogOffOnly && catalogOffOnly.checked){
+      models = models.filter(function(m){ return !m.enabled; });
+    }
+    var pricing = (catalog && catalog.pricing) || {};
+    var unit = String(pricing.unit || "");
+    document.getElementById("pricingMode").textContent = unit
+      ? unit.replace("_per_mtok", "/M") : "—";
+    var unpriced = catalogModels.filter(function(m){
+      return !(m.price && m.price.configured);
+    }).length;
+    document.getElementById("pricingNote").textContent = unit
+      ? fmtInt(pricing.models) + " 模型 · 峰谷 " + fmtInt(pricing.peak_offpeak) +
+        " · 平价 " + fmtInt(pricing.flat) + " · 未配价 " + fmtInt(unpriced) +
+        " · " + unit
+      : "价目未下发";
+    if(!models.length){
+      var empty = document.createElement("tr");
+      var td = cell(empty, query ? ("无匹配 · 清掉筛选再试") :
+        "尚无模型 · 先在渠道抽屉探测或填写模型清单", "empty");
+      td.colSpan = 6;
+      tb.appendChild(empty);
+      return;
+    }
+    models.forEach(function(m){
+      var tr = document.createElement("tr");
+      var off = !m.enabled || !m.channel_enabled;
+      if(off) tr.className = "is-off";
+      var name = cell(tr, m.id, "model");
+      name.title = m.id;
+      if(m.decision) sub(name, "DECISION");
+      var ch = cell(tr, m.channel, "chan");
+      sub(ch, m.pricing_channel || m.channel);
+      var p = m.price || {};
+      var peak = cell(tr, priceTriple(p.peak), "num price");
+      if(!p.configured) sub(peak, "未配价");
+      else if(p.rule_label) peak.title = peakSpans(p) + " · " + unit;
+      var valley = cell(tr, p.offpeak ? priceTriple(p.offpeak) : "—", "num price");
+      if(!p.offpeak) sub(valley, "未配置");
+      else if(p.rule_label) valley.title = peakSpans(p) + " · " + unit;
+      var st = cell(tr);
+      tag(st, !m.channel_enabled ? "CHANNEL OFF" : (m.enabled ? "ENABLED" : "MODEL OFF"), off);
+      if(m.unavailable){
+        // 表格里只放短码，完整原因在停用块与悬停里，避免把状态列撞成窄柱
+        sub(st, CODE_SHORT[m.unavailable.code] || "OFF");
+        st.title = unavailableTitle(m.unavailable);
+      }
+      var act = cell(tr);
+      if(!m.enabled && m.channel_enabled){
+        var rc = document.createElement("button");
+        rc.type = "button";
+        rc.className = "btn-sm btn-recheck";
+        rc.textContent = "↻";
+        rc.title = "复检这个模型：真打 1-token 推理，回写停用原因";
+        rc.setAttribute("aria-label", "复检 " + m.id);
+        rc.addEventListener("click", function(){
+          rc.disabled = true;
+          api("/api/control/model/probe", {channel: m.channel, model: m.id})
+            .then(function(r){
+              rc.disabled = false;
+              if(r.ok) alert(m.id + " 已可用 · 点「启用」恢复");
+              load(true);
+            })
+            .catch(function(err){ rc.disabled = false; alert("复检失败 · " + err.message); });
+        });
+        act.appendChild(rc);
+      }
+      var mt = document.createElement("button");
+      mt.type = "button";
+      mt.className = "btn-sm";
+      mt.textContent = m.enabled ? "停用" : "启用";
+      mt.disabled = !m.channel_enabled;
+      if(!m.channel_enabled) mt.title = "渠道已停用，先启用渠道";
+      mt.addEventListener("click", function(){
+        mt.disabled = true;
+        api("/api/control/model", {channel: m.channel, model: m.id, enabled: !m.enabled})
+          .then(function(){ load(true); })
+          .catch(function(err){ mt.disabled = false; alert("模型启停失败 · " + err.message); });
+      });
+      act.appendChild(mt);
+      tb.appendChild(tr);
+    });
+    fillCatalogSelects();
+  }
+  function renderRoutes(catalog){
+    var box = document.getElementById("routeRows");
+    box.textContent = "";
+    var groups = (catalog && catalog.groups) || [];
+    if(!groups.length){
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "未配置 auto/* 分组";
+      box.appendChild(empty);
+    } else {
+      groups.forEach(function(g){
+        var wrap = document.createElement("div");
+        wrap.className = "route-row-wrap";
+        var row = document.createElement("div");
+        row.className = "route-row";
+        var gid = document.createElement("span");
+        gid.className = "gid";
+        gid.textContent = g.id;
+        row.appendChild(gid);
+        var name = document.createElement("span");
+        name.className = "rname";
+        name.textContent = g.name || "";
+        row.appendChild(name);
+        var meta = document.createElement("span");
+        meta.className = "rmeta";
+        var members = g.members || [];
+        var policy = g.policy || {};
+        meta.textContent = members.length + " 成员" +
+          (policy.smart_tier ? " · tier" : "") + (policy.task_lock ? " · 锁" : "");
+        meta.title = members.map(function(m){
+          return (m.channel || "") + "/" + (m.upstream_name || m.id || "");
+        }).join("\n") || "无成员";
+        row.appendChild(meta);
+        wrap.appendChild(row);
+        var chips = document.createElement("div");
+        chips.className = "chip-row";
+        members.forEach(function(m){
+          var chip = document.createElement("span");
+          chip.className = "chip" + (m.tier === "strong" ? " s-strong" : "");
+          var label = document.createElement("em");
+          label.textContent = (m.channel || "") + "/";
+          chip.appendChild(label);
+          chip.appendChild(document.createTextNode(m.upstream_name || m.id || ""));
+          chip.title = "tier " + (m.tier || "—") + " · priority " + (m.priority || "—") +
+            (m.enabled === false ? " · 已停用" : "");
+          var del = document.createElement("button");
+          del.type = "button";
+          del.textContent = "×";
+          del.title = "从分组移除";
+          del.addEventListener("click", function(){
+            del.disabled = true;
+            api("/api/control/group", {action: "remove_member", group: g.id,
+              channel: m.channel, id: m.id || m.upstream_name}).then(function(){
+              load(true);
+            }).catch(function(err){
+              del.disabled = false;
+              routeCheck.textContent = "移除失败 · " + err.message;
+            });
+          });
+          chip.appendChild(del);
+          chips.appendChild(chip);
+        });
+        if(!members.length){
+          var none = document.createElement("span");
+          none.className = "mono-sm";
+          none.textContent = "0 成员 · 下方加入";
+          chips.appendChild(none);
+        }
+        wrap.appendChild(chips);
+        box.appendChild(wrap);
+      });
+    }
+    fillMatrixSelects(groups);
+    var check = (catalog && catalog.routes) || {};
+    var rc = document.getElementById("routeCheck");
+    if(check.checked_at){
+      rc.textContent = (check.ok ? "PASS" : "FAIL") + " · " +
+        (check.error_count || 0) + " ERR / " + (check.warning_count || 0) + " WARN";
+      rc.title = (check.issues || []).map(function(i){
+        return "[" + i.level + "] " + i.code + " · " + i.detail;
+      }).join("\n") || "无问题";
+    } else {
+      rc.textContent = "—";
+    }
+  }
+  function renderOfficial(official){
+    official = official || {};
+    var rows = official.rows || [];
+    var missing = rows.filter(function(r){ return !r.configured; }).map(function(r){
+      return r.channel;
+    });
+    var officialTotal = Number(official.total);
+    document.getElementById("officialCount").textContent = officialTotal
+      ? (Number(official.configured) || 0) + "/" + officialTotal
+      : "—";
+    var stampEl = document.getElementById("officialStamp");
+    stampEl.textContent = official.connected ? "CONNECTED" : "NOT CONNECTED";
+    stampEl.className = "tag " + (official.connected ? "inv" : "ghost");
+    var note = official.note || "只存参数，不发起请求。";
+    if(missing.length) note += " 缺参: " + missing.join(", ");
+    document.getElementById("officialNote").textContent = note;
+    document.getElementById("officialInfo").textContent = officialTotal
+      ? (Number(official.configured) || 0) + "/" + officialTotal + " 已配"
+      : "未接入";
+  }
+  function renderChannels(rows){
+    var tb = document.getElementById("channelRows");
+    tb.textContent = "";
+    if(!rows.length){
+      var empty = document.createElement("tr");
+      var td = cell(empty, "尚无渠道 · 右上「收录渠道」建立第一条上游", "empty");
+      td.colSpan = 6;
+      tb.appendChild(empty);
+      return;
+    }
+    rows.forEach(function(c){
+      var tr = document.createElement("tr");
+      var name = cell(tr, c.channel, "chan");
+      var keyState = c.secret_error ? "KEY ERR" :
+        (c.token_source === "env" ? "KEY ENV" : (c.token_source === "vault" ? "KEY VAULT" : "NO KEY"));
+      var loginState = c.login_error ? "LOGIN ERR" : (c.login_present ? "LOGIN" : "NO LOGIN");
+      sub(name, (c.default ? "DEFAULT · " : "") + (c.enabled ? "ON" : "OFF") +
+        " · " + keyState + " · " + loginState);
+      if(c.secret_error) name.title = c.secret_error;
+      if(c.login_error) name.title = (name.title ? name.title + " / " : "") + c.login_error;
+      var host = cell(tr, hostOf(c.base_url), "mono endpoint");
+      sub(host, (c.model_count || (c.models || []).length) + " models · " + (c.endpoint || "/v1/chat/completions"));
+      var st = cell(tr);
+      var stText = !c.enabled ? "◇ OFF" :
+        (c.status === "ok" ? "■ OK" : (c.status === "error" ? "▲ ERR" : "◇ WAIT"));
+      tag(st, stText, c.status === "error");
+      if(!c.enabled && c.unavailable){
+        sub(st, CODE_SHORT[c.unavailable.code] || "OFF");
+        st.title = unavailableTitle(c.unavailable);
+      }
+      var lat = cell(tr, c.latency_ms === null || c.latency_ms === undefined ? "—" : Math.round(c.latency_ms), "num");
+      if(c.latency_ms !== null && c.latency_ms !== undefined) sub(lat, "ms");
+      cell(tr, fmtInt(c.requests_today), "num");
+      var act = cell(tr);
+      var box = document.createElement("div");
+      box.className = "sec-actions";
+      if(!c.default && !c.virtual){
+        var mkDefault = document.createElement("button");
+        mkDefault.type = "button";
+        mkDefault.className = "btn-sm";
+        mkDefault.textContent = "设为默认";
+        mkDefault.addEventListener("click", function(){
+          mkDefault.disabled = true;
+          control({action: "default", name: c.channel})
+            .then(function(){ load(true); })
+            .catch(function(err){ mkDefault.disabled = false; alert("设默认失败 · " + err.message); });
+        });
+        box.appendChild(mkDefault);
+      }
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-sm";
+      btn.textContent = "编辑";
+      if(c.virtual) btn.title = "OC 桥虚拟渠道请到 OC 桥版块改";
+      btn.disabled = !!c.virtual;
+      btn.addEventListener("click", function(){ openDrawer(c, btn); });
+      box.appendChild(btn);
+      var toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "btn-sm";
+      toggle.textContent = c.enabled ? "停用" : "启用";
+      toggle.disabled = !!c.virtual;
+      toggle.addEventListener("click", function(){
+        toggle.disabled = true;
+        control({action: "enabled", name: c.channel, enabled: !c.enabled})
+          .then(function(){ load(true); })
+          .catch(function(err){ toggle.disabled = false; alert("启停失败 · " + err.message); });
+      });
+      box.appendChild(toggle);
+      var drop = document.createElement("button");
+      drop.type = "button";
+      drop.className = "btn-sm danger";
+      drop.textContent = "删除";
+      drop.disabled = !!c.virtual;
+      if(c.virtual) drop.title = "虚拟渠道随 OC 桥开关";
+      drop.addEventListener("click", function(){
+        if(drop.getAttribute("data-armed") !== "1"){
+          drop.setAttribute("data-armed", "1");
+          drop.textContent = "确认删除";
+          setTimeout(function(){
+            drop.setAttribute("data-armed", "0");
+            drop.textContent = "删除";
+          }, 6000);
+          return;
+        }
+        drop.disabled = true;
+        control({action: "delete", name: c.channel})
+          .then(function(){ load(true); })
+          .catch(function(err){ drop.disabled = false; alert("删除失败 · " + err.message); });
+      });
+      box.appendChild(drop);
+      act.appendChild(box);
+      tb.appendChild(tr);
+    });
+  }
+  function renderRecent(rows, pending){
+    var tb = document.getElementById("streamBody");
+    tb.textContent = "";
+    lastRecent = rows || [];
+    if(!rows.length){
+      var empty = document.createElement("tr");
+      var td = cell(empty, pending ? "读数未到 / READINGS PENDING" : "暂无请求 / NO TRAFFIC", "empty");
+      td.colSpan = 11;
+      tb.appendChild(empty);
+      return;
+    }
+    rows.forEach(function(r){
+      var tr = document.createElement("tr");
+      var when = cell(tr, fmtTs(r.ts).slice(11), "mono");
+      when.title = fmtTs(r.ts) + " · " + TZ[tzKey].label;
+      var rid = cell(tr, r.rid ? String(r.rid).slice(0, 8) : "—", "rid");
+      if(r.rid) rid.title = String(r.rid);
+      cell(tr, r.channel || "—");
+      cell(tr, r.model || r.requested_model || "—", "model");
+      var st = cell(tr);
+      var status = Number(r.status || 0);
+      tag(st, status ? String(status) : "—", status >= 400);
+      if(r.error) st.title = String(r.error);
+      var period = cell(tr, "", "period");
+      var label = r.price_period === "peak" ? "PEAK" :
+        (r.price_period === "offpeak" ? "OFFPEAK" :
+          (r.price_period === "flat" ? "FLAT" : "—"));
+      var badge = tag(period, label, r.price_period === "peak");
+      if(r.price_period === "offpeak" || r.price_period === "flat") badge.className = "tag ghost";
+      if(r.price_note) badge.title = r.price_note;
+      var unit = cell(tr, "", "unit hide-sm");
+      if(r.price_in === null || r.price_in === undefined){
+        unit.textContent = "—";
+        if(r.cost_reason) unit.title = r.cost_reason;
+      } else {
+        unit.textContent = fmtRate(r.price_in) + "/" + fmtRate(r.price_cache) + "/" +
+          fmtRate(r.price_out);
+        unit.title = label + " · " + (r.price_unit || "") +
+          (r.price_note ? " · " + r.price_note : "");
+      }
+      var lat = cell(tr, r.elapsed_ms === null || r.elapsed_ms === undefined ? "—" : Math.round(r.elapsed_ms), "num");
+      if(r.elapsed_ms !== null && r.elapsed_ms !== undefined) sub(lat, "ms");
+      cell(tr, r.ttft_ms === null || r.ttft_ms === undefined ? "—" : Math.round(r.ttft_ms), "num hide-sm");
+      var tokens = cell(tr, "", "num tok");
+      var tin = Number(r.prompt_tokens || 0), tc = Number(r.cached_tokens || 0), tout = Number(r.completion_tokens || 0);
+      tokens.textContent = (tin || tc || tout) ? (fmtInt(tin) + "/" + fmtInt(tc) + "/" + fmtInt(tout)) : "—";
+      tokens.title = "IN " + fmtInt(tin) + " · CACHE " + fmtInt(tc) + " · OUT " + fmtInt(tout) +
+        " · TOTAL " + fmtInt(r.total_tokens || (tin + tout));
+      var cost = cell(tr, r.cost_cny === null || r.cost_cny === undefined ? "—" : "¥" + Number(r.cost_cny).toFixed(4), "num");
+      if(r.price_period){
+        cost.title = label + " · IN/CACHE/OUT " + fmtRate(r.price_in) + "/" +
+          fmtRate(r.price_cache) + "/" + fmtRate(r.price_out) + " " + (r.price_unit || "") +
+          (r.price_note ? " · " + r.price_note : "");
+      } else if(r.cost_reason){
+        cost.title = r.cost_reason;
+      }
+      tb.appendChild(tr);
+    });
+  }
+  function render(d){
+    lastStatus = d;
+    var today = d.today || {};
+    var periods = today.periods || {};
+
+    pending.hidden = true;
+    dataBadge.textContent = "LIVE";
+    dataBadge.classList.remove("mock");
+    setStatus(d.status === "ok", d.status === "ok" ? "HEALTHY" : "DEGRADED");
+    document.getElementById("buildVersion").textContent = "v" + (d.version || "—");
+    document.getElementById("listenPort").textContent = ":" + (d.port || "—");
+    document.getElementById("statusNote").textContent = "PID " + (d.pid || "—") +
+      " · 单实例锁 · " + (d.host || "—") + ":" + (d.port || "—");
+    var auth = d.auth || {};
+    authEnabled = !!auth.enabled;
+    document.getElementById("panelUser").textContent = authEnabled
+      ? (auth.username || "ADMIN")
+      : "LOCAL";
+    secUserTag.textContent = authEnabled ? (auth.username || "ADMIN") : "LOCAL";
+    if(!authEnabled){
+      passwordBtn.disabled = true;
+      pwCurrent.disabled = true;
+      pwNew.disabled = true;
+      pwConfirm.disabled = true;
+      pwHint.textContent = "面板认证关闭；改密不可用。";
+    } else {
+      passwordBtn.disabled = false;
+      pwCurrent.disabled = false;
+      pwNew.disabled = false;
+      pwConfirm.disabled = false;
+      pwHint.textContent = "只在本机写入 scrypt 哈希；不回显明文。";
+    }
+    var probe = d.probe || {};
+    document.getElementById("probeInfo").textContent = probe.enabled
+      ? (probe.interval_s + "s / " + probe.timeout_s + "s timeout")
+      : "主动探针关闭";
+    var groups = d.groups || [];
+    var members = groups.reduce(function(n, g){ return n + Number(g.members || 0); }, 0);
+    document.getElementById("routeInfo").textContent = "默认 " + (d.default_channel || "—") +
+      " · " + groups.length + " 组 / " + members + " 成员 / 锁 " + fmtInt(d.locks);
+    document.getElementById("configFile").textContent = (d.config_file || "—") + " · mtime";
+
+    $('[data-tile="uptime"]').textContent = fmtUptime(d.uptime_s);
+    $('[data-tile="requests"]').textContent = fmtInt(today.requests);
+    document.getElementById("reqNote").textContent = "错误 " + fmtInt(today.errors) +
+      " · 未计价 " + fmtInt(today.unpriced);
+    $('[data-tile="tokens"]').textContent = fmtInt(today.prompt_tokens);
+    $('[data-tile="tokensCache"]').textContent = fmtInt(today.cached_tokens);
+    $('[data-tile="tokensOut"]').textContent = fmtInt(today.completion_tokens);
+
+    $$('[data-tile="spend"]').forEach(function(el){
+      el.textContent = fmtCny(today.cost_cny);
+    });
+    document.getElementById("spendNote").textContent = "峰 " + fmtInt(periods.peak) +
+      " · 谷 " + fmtInt(periods.offpeak) + " · 平价 " + fmtInt(periods.flat) +
+      (periods.none ? " · 未标 " + fmtInt(periods.none) : "");
+
+    renderChannels(d.channels || []);
+    renderCatalog(d.catalog || {});
+    renderUnavailable((d.catalog && d.catalog.unavailable) || {});
+    renderRoutes(d.catalog || {});
+    renderOfficial(d.official || {});
+    if(!(streamChannel && streamChannel.value) && !(streamState && streamState.value)){
+      renderRecent(d.recent || []);
+    }
+    renderMonitor(d.monitor || {}, d.status);
+    renderEgress(d.egress || {}, d.egress_warnings || {});
+    renderOc(d.oc_bridge || {});
+    fillStatusSelects(d);
+    if(d.generated_at) stamp.textContent = fmtTs(d.generated_at);
+  }
+  function fail(message){
+    dataBadge.textContent = "OFFLINE";
+    dataBadge.classList.add("mock");
+    setStatus(false, "OFFLINE");
+    pending.hidden = false;
+    pendingText.textContent = "网关未响应，保留占位，不补 0 · " + (message || "fetch failed");
+    renderChannels([]);
+    renderCatalog({});
+    renderUnavailable({});
+    renderRoutes({});
+    renderOfficial({});
+    renderRecent([], true);
+    renderMonitor({}, "down");
+    renderEgress({}, {});
+    renderOc({});
+  }
+  function load(manual){
+    if(manual) refreshBtn.disabled = true;
+    fetch("/api/status", {cache: "no-store"})
+      .then(function(res){
+        if(res.status === 401){
+          window.location.replace("/login");
+          throw new Error("login required");
+        }
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function(data){
+        if(!data || !data.ok) throw new Error("bad payload");
+        render(data);
+        loadOps();
+        if(manual){
+          $$('[data-tile="requests"], [data-tile="tokens"], [data-tile="tokensCache"], [data-tile="tokensOut"], [data-tile="spend"]').forEach(flash);
+        }
+      })
+      .catch(function(err){ fail(err && err.message); })
+      .finally(function(){ refreshBtn.disabled = false; });
+  }
+  function setMsg(text, state){
+    drawerMsg.textContent = text || "";
+    drawerMsg.setAttribute("data-state", state || "");
+  }
+  function splitModels(text){
+    return String(text || "").split(/[\n,]+/).map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+  function parseHeaderLines(text){
+    var out = {};
+    String(text || "").split(/\n/).forEach(function(line){
+      var at = line.indexOf(":");
+      if(at <= 0) return;
+      var key = line.slice(0, at).trim();
+      var value = line.slice(at + 1).trim();
+      if(key && value) out[key] = value;
+    });
+    return out;
+  }
+  function api(path, payload){
+    var init = {method: payload === undefined ? "GET" : "POST", cache: "no-store"};
+    if(payload !== undefined){
+      init.headers = {"Content-Type": "application/json", "X-KWSA-UI": "1"};
+      init.body = JSON.stringify(payload);
+    }
+    return fetch(path, init).then(function(res){
+      if(res.status === 401){
+        window.location.replace("/login");
+        throw new Error("login required");
+      }
+      return res.text().then(function(text){
+        var data = {};
+        try { data = JSON.parse(text); } catch(e){ data = {}; }
+        if(!res.ok){
+          throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
+        }
+        return data;
+      });
+    });
+  }
+  function control(payload){ return api("/api/control/channel", payload); }
+  function fmtStamp(sec){
+    if(!sec) return "—";
+    var d = new Date(Number(sec) * 1000);
+    if(isNaN(d.getTime())) return "—";
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) +
+      " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+  }
+  function setSecMsg(el, text, state){
+    if(!el) return;
+    el.textContent = text || "";
+    el.setAttribute("data-state", state || "");
+  }
+  function emptyRow(tbody, text, cols){
+    tbody.textContent = "";
+    var tr = document.createElement("tr");
+    var td = document.createElement("td");
+    td.className = "sec-empty";
+    td.colSpan = cols;
+    td.textContent = text;
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  }
+  function panelFetch(url, payload){
+    var init = {method: payload === undefined ? "GET" : "POST", cache: "no-store",
+                headers: {"X-KWSA-UI": "1"}};
+    if(payload !== undefined){
+      init.headers["Content-Type"] = "application/json";
+      init.body = JSON.stringify(payload);
+    }
+    return fetch(url, init).then(function(res){
+      if(res.status === 401){
+        window.location.replace("/login");
+        throw new Error("login required");
+      }
+      return res.text().then(function(text){
+        var data = {};
+        try { data = JSON.parse(text); } catch(e){ data = {}; }
+        if(!res.ok){
+          throw new Error((data.error && data.error.message) || ("HTTP " + res.status));
+        }
+        return data;
+      });
+    });
+  }
+  function secButton(text, handler, cls){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn-sm" + (cls ? " " + cls : "");
+    btn.textContent = text;
+    btn.addEventListener("click", handler);
+    return btn;
+  }
+  function renderKeys(d){
+    d = d || {};
+    keyDefaults = {rps: d.default_rps || 20, burst: d.default_burst || 40};
+    keyGateStamp.textContent = d.require_key ? "REQUIRED" : "OPTIONAL";
+    keyGateStamp.className = "tag " + (d.require_key ? "inv" : "ghost");
+    keyNote.textContent = d.require_key
+      ? (Number(d.active || 0) > 0
+          ? "强制准入已开启 · 活动 " + Number(d.active || 0) + " / 共 " + Number(d.total || 0) +
+            " · /v1/* 必须带 Key"
+          : "强制准入已开启，但没有活动 KEY；/v1/* 已关闭。先签发一条。")
+      : "可选 KEY：未带 Key 的请求仍按原契约放行；带 Key 时按独立桶限流。";
+    if(!keyRps.value) keyRps.value = keyDefaults.rps;
+    if(!keyBurst.value) keyBurst.value = keyDefaults.burst;
+    revokeArmed = "";
+    if(revokeTimer){ clearTimeout(revokeTimer); revokeTimer = null; }
+    var rows = d.keys || [];
+    if(!rows.length){
+      emptyRow(keyRows, "尚无数据面 KEY · 上方签发第一条", 5);
+      return;
+    }
+    keyRows.textContent = "";
+    rows.forEach(function(row){
+      var tr = document.createElement("tr");
+      var kd = cell(tr, "", "mono");
+      var kn = document.createElement("span");
+      kn.className = "key-name";
+      kn.textContent = row.name || "—";
+      kd.appendChild(kn);
+      var ks = document.createElement("span");
+      ks.className = "key-sub";
+      ks.textContent = (row.id || "—") + " · " + (row.prefix || "—") + "…";
+      kd.appendChild(ks);
+      cell(tr, fmtRate(row.rps) + " / " + fmtRate(row.burst), "num mono");
+      var last = cell(tr, row.last_used_at ? fmtStamp(row.last_used_at) : "—", "mono");
+      if(row.requests) last.title = "累计请求 " + fmtInt(row.requests) + " 次（进程内）";
+      var st = cell(tr);
+      tag(st, row.enabled ? "ACTIVE" : "DISABLED", !row.enabled);
+      var actions = cell(tr);
+      var box = document.createElement("div");
+      box.className = "sec-actions";
+      box.appendChild(secButton(row.enabled ? "停用" : "启用", function(){
+        panelFetch("/api/security/keys", {action: "toggle", id: row.id, enabled: !row.enabled})
+          .then(function(){ loadSecurity(); })
+          .catch(function(err){ setSecMsg(keyMsg, "启停失败 · " + err.message, "err"); });
+      }));
+      var revokeBtn = secButton("吊销", function(){
+        if(revokeArmed !== row.id){
+          revokeArmed = row.id;
+          revokeBtn.textContent = "确认吊销";
+          setSecMsg(keyMsg, "再次点击吊销 " + row.name + "；立即失效。", "err");
+          if(revokeTimer) clearTimeout(revokeTimer);
+          revokeTimer = setTimeout(function(){
+            revokeArmed = "";
+            revokeBtn.textContent = "吊销";
+            revokeTimer = null;
+          }, 6000);
+          return;
+        }
+        revokeArmed = "";
+        revokeBtn.disabled = true;
+        panelFetch("/api/security/keys", {action: "revoke", id: row.id})
+          .then(function(){ setSecMsg(keyMsg, "已吊销 " + row.name, "ok"); loadSecurity(); })
+          .catch(function(err){ revokeBtn.disabled = false; setSecMsg(keyMsg, "吊销失败 · " + err.message, "err"); });
+      }, "danger");
+      box.appendChild(revokeBtn);
+      actions.appendChild(box);
+      keyRows.appendChild(tr);
+    });
+  }
+  var EVENT_LABEL = {
+    login_success: "登录成功", login_failed: "登录失败",
+    login_throttled: "登录熔断", logout: "退出",
+    password_changed: "改密成功", password_change_failed: "改密失败",
+    client_key_created: "签发 KEY", client_key_toggled: "启停 KEY",
+    client_key_revoked: "吊销 KEY"
+  };
+  function renderAudit(d){
+    var rows = (d && d.events) || [];
+    if(!rows.length){
+      emptyRow(auditRows, "暂无审计事件 / NO EVENTS", 5);
+      return;
+    }
+    auditRows.textContent = "";
+    rows.forEach(function(row){
+      var tr = document.createElement("tr");
+      cell(tr, row.iso || fmtStamp(row.ts), "mono");
+      var ev = cell(tr, "", "mono");
+      var label = EVENT_LABEL[row.event] || row.event || "—";
+      var badge = document.createElement("span");
+      badge.className = "tag " + (row.event === "login_failed" || row.event === "login_throttled" ||
+        row.event === "password_change_failed" || row.event === "client_key_revoked" ? "inv" : "ghost");
+      badge.textContent = label;
+      ev.appendChild(badge);
+      cell(tr, row.user || "—", "mono");
+      var ip = cell(tr, row.ip || "—", "mono");
+      if(row.peer_ip && row.peer_ip !== row.ip) ip.title = "TCP peer " + row.peer_ip;
+      cell(tr, row.detail || "—", "mono");
+      auditRows.appendChild(tr);
+    });
+  }
+  function loadAudit(){
+    var event = auditFilter.value || "";
+    var url = "/api/security/audit?limit=80" +
+      (event ? "&event=" + encodeURIComponent(event) : "");
+    return panelFetch(url).then(renderAudit).catch(function(err){
+      emptyRow(auditRows, "审计不可读 / AUDIT ERROR · " + err.message, 5);
+    });
+  }
+  function loadSecurity(){
+    if(!authEnabled){
+      passwordBtn.disabled = true;
+      pwCurrent.disabled = true;
+      pwNew.disabled = true;
+      pwConfirm.disabled = true;
+      pwHint.textContent = "面板认证关闭；改密不可用。";
+    }
+    panelFetch("/api/security/keys").then(renderKeys).catch(function(err){
+      keyGateStamp.textContent = "ERROR";
+      keyGateStamp.className = "tag inv";
+      keyNote.textContent = "Key 仓不可读 / KEY STORE ERROR · " + err.message;
+      emptyRow(keyRows, "Key 仓不可读", 5);
+    });
+    loadAudit();
+  }
+  function openSecurity(trigger){
+    securityFocus = trigger || document.activeElement;
+    if(!drawer.hidden) closeDrawer();
+    if(securityTimer){ clearTimeout(securityTimer); securityTimer = null; }
+    securityDrawer.hidden = false;
+    scrim.hidden = false;
+    requestAnimationFrame(function(){
+      scrim.classList.add("open");
+      securityDrawer.classList.add("open");
+    });
+    loadSecurity();
+    setTimeout(function(){ (authEnabled ? pwCurrent : keyName).focus(); }, 60);
+  }
+  function closeSecurity(){
+    if(securityDrawer.hidden) return;
+    securityDrawer.classList.remove("open");
+    scrim.classList.remove("open");
+    securityTimer = setTimeout(function(){
+      securityDrawer.hidden = true;
+      scrim.hidden = true;
+      securityTimer = null;
+    }, 200);
+    if(securityFocus && securityFocus.focus) securityFocus.focus();
+  }
+  function resetDelete(){
+    var wasConfirm = drawerMsg.textContent.indexOf("再次点击确认") === 0;
+    deleteArmed = false;
+    deleteBtn.textContent = "删除渠道";
+    if(deleteTimer) clearTimeout(deleteTimer);
+    deleteTimer = null;
+    if(wasConfirm) setMsg("确认窗口已关闭；再点一次删除。", "");
+  }
+  function openDrawer(row, trigger){
+    if(!securityDrawer.hidden) closeSecurity();
+    lastFocus = trigger || document.activeElement;
+    editingChannel = row || null;
+    if(closeTimer){ clearTimeout(closeTimer); closeTimer = null; }
+    channelForm.reset();
+    resetDelete();
+    fName.disabled = false;
+    if(row){
+      fName.value = row.channel || "";
+      fName.disabled = true;
+      fBase.value = row.base_url || "";
+      fToken.value = "";
+      fToken.placeholder = row.token_present
+        ? "已存 " + (row.token_masked || "●●●●●●") + " · 留空沿用"
+        : "未配置 · 输入密钥";
+      fTokenEnv.value = row.token_env || "";
+      fProbe.value = row.probe_path || "/health";
+      fModels.value = (row.models || []).join("\n");
+      fAliases.value = Object.keys(row.aliases || {}).map(function(k){
+        return k + " = " + row.aliases[k];
+      }).join("\n");
+      fEndpoint.value = row.endpoint || "";
+      fPricing.value = row.pricing_channel || "";
+      fHeaders.value = Object.keys(row.header_env || {}).map(function(k){
+        return k + ": env:" + row.header_env[k];
+      }).join("\n");
+      fLoginUrl.value = row.login_url || "";
+      fUsagePath.value = row.usage_path || "";
+      fLoginUser.value = "";
+      fLoginPass.value = "";
+      fLoginUser.placeholder = row.login_present
+        ? "已存 " + (row.login_user_masked || "●●●") + " · 留空沿用"
+        : "账号或邮箱";
+      fLoginPass.placeholder = row.password_present ? "已存 · 留空沿用" : "留空 = 不配置";
+      fClearLogin.checked = false;
+      loginHint.textContent = row.login_present
+        ? "已存账号 " + (row.login_user_masked || "●●●") + "；密码只进密钥仓，不回显。"
+        : "账号密码只进加密密钥仓；本版本保存后不发起官方请求。";
+      fEnabled.checked = row.enabled !== false;
+      fDefault.checked = !!row.default;
+      deleteBtn.disabled = false;
+      drawerTitle.textContent = "检修渠道 / " + row.channel;
+      tokenHint.textContent = "来源 " + (row.token_source || "none") + " · 密钥不回显";
+      var literal = Object.keys(row.headers || {}).filter(function(k){
+        return !(row.header_env || {})[k];
+      });
+      setMsg(literal.length
+        ? "配置含非 env 自定义头，保存时保留；此处只编辑 env 头。"
+        : "密钥留空即沿用；保存后配置热加载，不重启。", "");
+    } else {
+      fName.value = "";
+      fBase.value = "";
+      fToken.value = "";
+      fToken.placeholder = "留空 = 不配置密钥";
+      fTokenEnv.value = "";
+      fProbe.value = "/health";
+      fModels.value = "";
+      fAliases.value = "";
+      fEndpoint.value = "";
+      fPricing.value = "";
+      fHeaders.value = "";
+      fLoginUrl.value = "";
+      fUsagePath.value = "";
+      fLoginUser.value = "";
+      fLoginPass.value = "";
+      fLoginUser.placeholder = "账号或邮箱";
+      fLoginPass.placeholder = "留空 = 不配置";
+      fClearLogin.checked = false;
+      loginHint.textContent = "账号密码只进加密密钥仓；本版本保存后不发起官方请求。";
+      fEnabled.checked = true;
+      fDefault.checked = false;
+      deleteBtn.disabled = true;
+      drawerTitle.textContent = "收录上游渠道";
+      tokenHint.textContent = "只写入本机加密密钥仓，不回显";
+      setMsg("填写上游参数后保存；密钥不会回显。", "");
+    }
+    scrim.hidden = false;
+    drawer.hidden = false;
+    requestAnimationFrame(function(){
+      scrim.classList.add("open");
+      drawer.classList.add("open");
+    });
+    setTimeout(function(){ (row ? fBase : fName).focus(); }, 60);
+  }
+  function closeDrawer(){
+    if(drawer.hidden) return;
+    drawer.classList.remove("open");
+    scrim.classList.remove("open");
+    closeTimer = setTimeout(function(){
+      drawer.hidden = true;
+      scrim.hidden = true;
+      closeTimer = null;
+    }, 200);
+    if(lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function currentPayload(action){
+    var headers = parseHeaderLines(fHeaders.value);
+    var payload = {
+      action: action,
+      name: fName.value.trim(),
+      base_url: fBase.value.trim(),
+      token: fToken.value,
+      token_env: fTokenEnv.value.trim(),
+      login_url: fLoginUrl.value.trim(),
+      usage_path: fUsagePath.value.trim(),
+      login_user: fLoginUser.value.trim(),
+      login_password: fLoginPass.value,
+      clear_login: fClearLogin.checked,
+      headers: headers
+    };
+    if(action === "probe") return payload;
+    payload.models = splitModels(fModels.value);
+    payload.aliases = parseAliasLines(fAliases.value);
+    payload.endpoint = fEndpoint.value.trim();
+    payload.probe_path = fProbe.value.trim() || "/health";
+    payload.pricing_channel = fPricing.value.trim();
+    payload.enabled = fEnabled.checked;
+    payload.make_default = fDefault.checked;
+    if(editingChannel && !Object.keys(headers).length){
+      delete payload.headers;
+    }
+    return payload;
+  }
+  function parseAliasLines(text){
+    var out = {};
+    String(text || "").split(/\r?\n/).forEach(function(line){
+      var parts = line.split(/=|->|→/);
+      if(parts.length < 2) return;
+      var key = parts[0].trim(), value = parts[1].trim();
+      if(key && value) out[key] = value;
+    });
+    return out;
+  }
+  function probeChannel(){
+    if(!fBase.value.trim()){
+      setMsg("先填上游地址，再探测模型。", "err");
+      fBase.focus();
+      return;
+    }
+    probeBtn.disabled = true;
+    setMsg("探测上游 / PROBING…", "");
+    control(currentPayload("probe")).then(function(d){
+      if(!d.ok){
+        setMsg("探测失败 · " + (d.status || "down") + " · " + (d.error || "—"), "err");
+        return;
+      }
+      fModels.value = (d.models || []).join("\n");
+      setMsg("探测到 " + d.models.length + " 个模型 · HTTP " + d.http_status +
+        " · " + (d.latency_ms === null || d.latency_ms === undefined
+                 ? "延迟 —" : Math.round(d.latency_ms) + "ms"), "ok");
+    }).catch(function(err){
+      setMsg("探测失败 · " + (err && err.message || "network"), "err");
+    }).finally(function(){ probeBtn.disabled = false; });
+  }
+  function saveChannel(event){
+    event.preventDefault();
+    if(!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(fName.value.trim())){
+      setMsg("渠道代号只允许字母、数字、点、下划线、连字符。", "err");
+      fName.focus();
+      return;
+    }
+    if(!fBase.value.trim()){
+      setMsg("上游地址必填。", "err");
+      fBase.focus();
+      return;
+    }
+    saveChannelBtn.disabled = true;
+    setMsg("写入中 / SAVING…", "");
+    control(currentPayload("save")).then(function(d){
+      if(d.ok === false) throw new Error((d.error && d.error.message) || "保存失败");
+      setMsg("已收录 " + (d.channel || fName.value) + " · KEY " + (d.token_source || "none"), "ok");
+      load(true);
+      setTimeout(closeDrawer, 650);
+    }).catch(function(err){
+      setMsg("保存失败 · " + (err && err.message || "network"), "err");
+    }).finally(function(){ saveChannelBtn.disabled = false; });
+  }
+  function deleteChannel(){
+    if(!editingChannel) return;
+    if(!deleteArmed){
+      deleteArmed = true;
+      deleteBtn.textContent = "确认删除";
+      setMsg("再次点击确认：删除渠道及其密钥，不可撤销。", "err");
+      deleteTimer = setTimeout(resetDelete, 8000);
+      return;
+    }
+    var name = editingChannel.channel;
+    resetDelete();
+    deleteBtn.disabled = true;
+    setMsg("删除中 / DELETING…", "");
+    control({action: "delete", name: name}).then(function(d){
+      setMsg("已删除 " + name, "ok");
+      load(true);
+      setTimeout(closeDrawer, 500);
+    }).catch(function(err){
+      setMsg("删除失败 · " + (err && err.message || "network"), "err");
+      deleteBtn.disabled = false;
+    });
+  }
+  addChannelBtn.addEventListener("click", function(){ openDrawer(null, addChannelBtn); });
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  document.getElementById("cancelChannelBtn").addEventListener("click", closeDrawer);
+  scrim.addEventListener("click", function(){
+    if(!securityDrawer.hidden) closeSecurity();
+    else closeDrawer();
+  });
+  probeBtn.addEventListener("click", probeChannel);
+  deleteBtn.addEventListener("click", deleteChannel);
+  channelForm.addEventListener("submit", saveChannel);
+  document.addEventListener("keydown", function(e){
+    if(e.key !== "Escape") return;
+    if(!securityDrawer.hidden) closeSecurity();
+    else if(!drawer.hidden) closeDrawer();
+  });
+  function trapFocus(container, event){
+    if(event.key !== "Tab") return;
+    var nodes = Array.prototype.slice.call(container.querySelectorAll(
+      "button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled])"
+    ));
+    if(!nodes.length) return;
+    var first = nodes[0], last = nodes[nodes.length - 1];
+    if(event.shiftKey && document.activeElement === first){ event.preventDefault(); last.focus(); }
+    else if(!event.shiftKey && document.activeElement === last){ event.preventDefault(); first.focus(); }
+  }
+  drawer.addEventListener("keydown", function(e){ trapFocus(drawer, e); });
+  securityDrawer.addEventListener("keydown", function(e){ trapFocus(securityDrawer, e); });
+  securityBtn.addEventListener("click", function(){ openSecurity(securityBtn); });
+  securityClose.addEventListener("click", closeSecurity);
+  passwordForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!authEnabled){
+      setSecMsg(passwordMsg, "面板认证关闭；改密不可用。", "err");
+      return;
+    }
+    if(!pwCurrent.value){
+      setSecMsg(passwordMsg, "先填当前口令。", "err");
+      pwCurrent.focus();
+      return;
+    }
+    if(pwNew.value.length < 10){
+      setSecMsg(passwordMsg, "新口令至少 10 位。", "err");
+      pwNew.focus();
+      return;
+    }
+    if(pwNew.value !== pwConfirm.value){
+      setSecMsg(passwordMsg, "两次新口令不一致。", "err");
+      pwConfirm.focus();
+      return;
+    }
+    passwordBtn.disabled = true;
+    setSecMsg(passwordMsg, "更新中 / UPDATING…", "");
+    panelFetch("/api/auth/password", {
+      current_password: pwCurrent.value,
+      new_password: pwNew.value,
+      confirm_password: pwConfirm.value
+    }).then(function(d){
+      passwordForm.reset();
+      setSecMsg(passwordMsg, "口令已更新 · 已撤销 " + Number(d.sessions_revoked || 0) +
+        " 个旧会话", "ok");
+      loadAudit();
+    }).catch(function(err){
+      setSecMsg(passwordMsg, "改密失败 · " + err.message, "err");
+    }).finally(function(){
+      passwordBtn.disabled = !authEnabled;
+    });
+  });
+  keyForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!keyName.value.trim()){
+      setSecMsg(keyMsg, "先填 Key 名称。", "err");
+      keyName.focus();
+      return;
+    }
+    keyCreateBtn.disabled = true;
+    setSecMsg(keyMsg, "签发中 / ISSUING…", "");
+    panelFetch("/api/security/keys", {
+      action: "create",
+      name: keyName.value.trim(),
+      rps: keyRps.value || keyDefaults.rps,
+      burst: keyBurst.value || keyDefaults.burst
+    }).then(function(d){
+      keySecret.hidden = false;
+      keySecretValue.textContent = d.secret || "";
+      keyName.value = "";
+      keyRps.value = keyDefaults.rps;
+      keyBurst.value = keyDefaults.burst;
+      setSecMsg(keyMsg, "已签发 " + (d.key && d.key.name || "KEY") +
+        " · 密钥只显示一次，请立即复制", "ok");
+      loadSecurity();
+    }).catch(function(err){
+      setSecMsg(keyMsg, "签发失败 · " + err.message, "err");
+    }).finally(function(){ keyCreateBtn.disabled = false; });
+  });
+  copyKeyBtn.addEventListener("click", function(){
+    var text = keySecretValue.textContent || "";
+    if(!text) return;
+    function done(){ copyKeyBtn.textContent = "已复制"; setTimeout(function(){ copyKeyBtn.textContent = "复制"; }, 1600); }
+    function fallback(){
+      var range = document.createRange();
+      range.selectNodeContents(keySecretValue);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try { document.execCommand("copy"); done(); }
+      catch(e){ copyKeyBtn.textContent = "手动复制"; }
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else fallback();
+  });
+  auditFilter.addEventListener("change", loadAudit);
+  auditRefresh.addEventListener("click", loadAudit);
+  refreshBtn.addEventListener("click", function(){ load(true); });
+  document.getElementById("logoutBtn").addEventListener("click", function(){
+    var btn = this;
+    btn.disabled = true;
+    fetch("/api/logout", {method: "POST", cache: "no-store",
+                          headers: {"X-KWSA-UI": "1"}})
+      .catch(function(){})
+      .finally(function(){ window.location.replace("/login"); });
+  });
+  // ── 链路监视 ───────────────────────────────────
+  var lastStatus = null;
+  var lastProbe = null;
+  var usageSpan = 86400;
+  var usageMode = "channel";
+  var lastUsage = null;
+  var lastRecent = [];
+  var opsTick = 0;
+  var ocHydrated = false;
+  var ocNotice = "";
+
+  function renderMonitor(m, status){
+    m = m || {};
+    var stats = m.stats || {};
+    var state = "ok";
+    if(status === "down") state = "down";
+    else if(status === "ok") state = ((stats.errors || 0) > 0 ? "warn" : "ok");
+    else if(status) state = "warn";
+    else state = "wait";
+    lampGrid.setAttribute("data-state", state);
+    var cells = statGrid.querySelectorAll("div b");
+    if(cells.length >= 4){
+      function pair(row){
+        if(!row || row.p50 === null || row.p50 === undefined) return "—";
+        return Math.round(row.p50) + " / " + Math.round(row.p95 === null || row.p95 === undefined ? row.p50 : row.p95);
+      }
+      cells[0].textContent = pair(stats.route);
+      cells[1].textContent = pair(stats.upstream);
+      cells[2].textContent = pair(stats.ttft);
+      cells[3].textContent = pair(stats.total);
+    }
+    statStamp.textContent = fmtInt(stats.count || 0) + " 样本 · " + fmtInt(stats.errors || 0) + " 错";
+    inflightEl.textContent = fmtInt(m.inflight) + " / " + fmtInt(m.requests_total);
+    if(m.hops && m.hops.length) renderHopRecent(m.hops);
+  }
+
+  function renderHopRecent(rows){
+    var take = rows.slice(-4).reverse();
+    hopRecent.textContent = "";
+    hopRecentNote.textContent = take.length + " 条 · 路由/上游/首字节";
+    take.forEach(function(r){
+      var line = document.createElement("div");
+      line.className = "hop-line";
+      line.textContent = fmtTs(r.ts).slice(11) + " " + (r.channel || "—") + "/" +
+        (r.model || "—") + " · " + (r.ok ? r.status : "ERR " + r.status) + " · " +
+        (r.route_ms === null || r.route_ms === undefined ? "—" : Math.round(r.route_ms)) + "/" +
+        (r.upstream_ms === null || r.upstream_ms === undefined ? "—" : Math.round(r.upstream_ms)) + "/" +
+        (r.ttft_ms === null || r.ttft_ms === undefined ? "—" : Math.round(r.ttft_ms)) + "ms";
+      line.title = line.textContent;
+      hopRecent.appendChild(line);
+    });
+  }
+
+  function renderHops(r){
+    hopPanel.textContent = "";
+    if(!r || !r.hops || !r.hops.length){
+      var none = document.createElement("div");
+      none.className = "monitor-empty";
+      none.textContent = "点右上「实测链路」跑一次 DNS / TCP / TLS / 首字节";
+      hopPanel.appendChild(none);
+      return;
+    }
+    hopTitle.textContent = (r.channel || "链路") + " · " + (r.egress || "direct");
+    hopStamp.textContent = (r.ok ? "PASS" : "FAIL") + " · " +
+      (r.error ? r.error.slice(0, 40) : (r.note || "真实分段计时"));
+    var max = 1;
+    r.hops.forEach(function(h){ if(h.ms && h.ms > max) max = h.ms; });
+    r.hops.forEach(function(h){
+      var row = document.createElement("div");
+      row.className = "hop-row" + (h.ok ? "" : " bad");
+      var name = document.createElement("b");
+      name.textContent = h.name;
+      row.appendChild(name);
+      var bar = document.createElement("div");
+      bar.className = "hop-bar";
+      var fill = document.createElement("i");
+      fill.style.width = (h.ms ? Math.max(2, Math.round(h.ms / max * 100)) : 0) + "%";
+      bar.appendChild(fill);
+      row.appendChild(bar);
+      var ms = document.createElement("span");
+      ms.className = "hop-ms";
+      ms.textContent = (h.ms === null || h.ms === undefined) ? "—" : Math.round(h.ms) + "ms";
+      row.appendChild(ms);
+      if(h.note){
+        var note = document.createElement("div");
+        note.className = "hop-note";
+        note.textContent = h.note;
+        row.appendChild(note);
+      }
+      hopPanel.appendChild(row);
+    });
+  }
+
+  // ── 出口分路 ───────────────────────────────────
+  function legOptions(legs, blankLabel){
+    return [{value: "", label: blankLabel || "直连（不代理）"}].concat(legs.map(function(l){
+      return {value: l.id, label: l.id + " · " + l.name + (l.enabled ? "" : "（停用）")};
+    }));
+  }
+  function renderEgress(eg, warnings){
+    eg = eg || {};
+    var legs = eg.legs || [];
+    egressStamp.textContent = legs.length
+      ? legs.length + " 腿 · 默认 " + (eg.default || "直连")
+      : "全部直连";
+    legRows.textContent = "";
+    if(!legs.length){
+      emptyRow(legRows, "尚未配置出口腿 · 全部流量直连", 4);
+    } else {
+      legs.forEach(function(leg){
+        var tr = document.createElement("tr");
+        var name = cell(tr, leg.id, "mono");
+        sub(name, leg.name || "");
+        cell(tr, leg.url, "mono");
+        var st = cell(tr);
+        tag(st, leg.enabled ? "ON" : "OFF", !leg.enabled);
+        if(eg.default === leg.id){
+          var badge = tag(st, "DEFAULT", false);
+          badge.className = "tag ghost";
+        }
+        var act = cell(tr);
+        var box = document.createElement("div");
+        box.className = "row-acts";
+        box.appendChild(secButton("默认", function(){
+          api("/api/control/egress", {action: "default", id: leg.id})
+            .then(function(){ load(true); });
+        }));
+        box.appendChild(secButton(leg.enabled ? "停用" : "启用", function(){
+          api("/api/control/egress", {action: "save", id: leg.id, name: leg.name,
+            url: leg.url, enabled: !leg.enabled, note: leg.note || ""})
+            .then(function(){ load(true); });
+        }));
+        var del = secButton("删除", function(){
+          if(del.getAttribute("data-armed") !== "1"){
+            del.setAttribute("data-armed", "1");
+            del.textContent = "确认";
+            setTimeout(function(){ del.setAttribute("data-armed", "0"); del.textContent = "删除"; }, 6000);
+            return;
+          }
+          api("/api/control/egress", {action: "delete", id: leg.id})
+            .then(function(){ load(true); });
+        }, "danger");
+        box.appendChild(del);
+        act.appendChild(box);
+        legRows.appendChild(tr);
+      });
+    }
+    var opts = legOptions(legs);
+    fillSelect(legDefault, opts, eg.default || "");
+    fillSelect(bindLeg, opts, bindLeg.value);
+    fillSelect(ocEgress, opts, ocEgress.value);
+    var warnKeys = Object.keys(warnings || {});
+    egressStamp.title = warnKeys.length
+      ? warnKeys.map(function(k){ return k + ": " + warnings[k]; }).join("\n")
+      : "渠道可单独绑定出口腿；未绑定时走全局默认";
+  }
+
+  // ── OC 桥 ───────────────────────────────────────
+  function renderOc(oc){
+    oc = oc || {};
+    var enabled = !!oc.enabled;
+    ocStamp.textContent = enabled ? (oc.mode === "direct" ? "DIRECT ON" : "BRIDGE ON") : "OFF";
+    ocStamp.className = "tag " + (enabled ? "inv" : "ghost");
+    ocToggle.textContent = enabled ? "关闭" : "开启";
+    ocToggle.setAttribute("data-enabled", enabled ? "1" : "0");
+    if(!ocHydrated && oc.channel){
+      ocMode.value = oc.mode || "bridge";
+      ocChannel.value = oc.channel || "oc-bridge";
+      ocBridge.value = oc.bridge_url || "http://127.0.0.1:8898/v1";
+      ocModels.value = (oc.models || []).join("\n");
+      ocHydrated = true;
+    }
+    ocToken.placeholder = oc.token_present ? "已存 · 留空沿用" : "直连桥的 OC_DIRECT_TOKEN";
+    if(ocNotice) ocMsg.textContent = "⚠ " + ocNotice;
+    else ocMsg.textContent = (oc.gate ? oc.gate + " · " : "") + (oc.note || "");
+  }
+
+  // ── 选择器填充 ────────────────────────────────
+  function fillCatalogSelects(){
+    var seen = {}, chans = [];
+    catalogModels.forEach(function(m){
+      var pc = m.pricing_channel || m.channel;
+      if(!pc || seen[pc]) return;
+      seen[pc] = 1;
+      chans.push({value: pc, label: pc});
+    });
+    fillSelect(pcChannel, chans, pcChannel.value || (chans[0] && chans[0].value));
+    if(pcModels){
+      pcModels.textContent = "";
+      catalogModels.filter(function(m){
+        return (m.pricing_channel || m.channel) === pcChannel.value;
+      }).forEach(function(m){
+        var opt = document.createElement("option");
+        opt.value = m.id;
+        pcModels.appendChild(opt);
+      });
+    }
+    if(mxModels){
+      mxModels.textContent = "";
+      catalogModels.filter(function(m){ return m.channel === mxChannel.value; })
+        .forEach(function(m){
+          var opt = document.createElement("option");
+          opt.value = m.id;
+          mxModels.appendChild(opt);
+        });
+    }
+  }
+  function fillMatrixSelects(groups){
+    groups = groups || [];
+    var opts = groups.map(function(g){
+      return {value: g.id, label: g.id + " · " + (g.name || "")};
+    });
+    opts.push({value: "__new", label: "＋ 新建分组"});
+    fillSelect(mxGroup, opts, mxGroup.value || (opts[0] && opts[0].value));
+    var seen = {}, chans = [];
+    catalogModels.forEach(function(m){
+      if(!m.channel || seen[m.channel] || m.channel === undefined) return;
+      seen[m.channel] = 1;
+      chans.push({value: m.channel, label: m.channel});
+    });
+    fillSelect(mxChannel, chans, mxChannel.value || (chans[0] && chans[0].value));
+    fillCatalogSelects();
+  }
+  function fillStatusSelects(d){
+    var channels = d.channels || [];
+    var opts = channels.map(function(c){
+      return {value: c.channel, label: c.channel + (c.virtual ? " (OC)" : "")};
+    });
+    fillSelect(probeTarget, opts, probeTarget.value || (d.default_channel || ""));
+    fillSelect(streamChannel, [{value: "", label: "全部渠道"}].concat(opts), streamChannel.value);
+    fillSelect(bindChannel, channels.filter(function(c){ return !c.virtual; }).map(function(c){
+      return {value: c.channel, label: c.channel};
+    }), bindChannel.value);
+  }
+
+  // ── 价目 ───────────────────────────────────────
+  function loadPricing(){
+    return panelFetch("/api/pricing").then(function(d){
+      var unit = (d.summary && d.summary.unit) || "";
+      priceMode.textContent = unit ? unit.replace("_per_mtok", "/M") : "—";
+      renderPriceRows(d.rows || []);
+    }).catch(function(err){
+      emptyRow(priceRows, "价目不可读 · " + err.message, 5);
+    });
+  }
+  function renderPriceRows(rows){
+    priceRows.textContent = "";
+    if(!rows.length){
+      emptyRow(priceRows, "尚无价目 · 上方填单价后保存", 5);
+      return;
+    }
+    rows.forEach(function(r){
+      var tr = document.createElement("tr");
+      cell(tr, r.model, "mono");
+      cell(tr, r.channel, "mono");
+      var peak = cell(tr, priceTriple(r.peak), "num mono");
+      if(r.rule_label) peak.title = peakSpans({rule: r.rule, rule_label: r.rule_label});
+      cell(tr, r.offpeak ? priceTriple(r.offpeak) : "—", "num mono");
+      var act = cell(tr);
+      var box = document.createElement("div");
+      box.className = "row-acts";
+      box.appendChild(secButton("编辑", function(){
+        pcChannel.value = r.channel;
+        fillCatalogSelects();
+        pcModel.value = r.model;
+        var peakBand = r.peak || {}, offBand = r.offpeak || {};
+        pcIn.value = peakBand.in === undefined ? "" : peakBand.in;
+        pcCache.value = peakBand.cache === undefined ? "" : peakBand.cache;
+        pcOut.value = peakBand.out === undefined ? "" : peakBand.out;
+        pcOffIn.value = offBand.in === undefined || offBand.in === null ? "" : offBand.in;
+        pcOffCache.value = offBand.cache === undefined || offBand.cache === null ? "" : offBand.cache;
+        pcOffOut.value = offBand.out === undefined || offBand.out === null ? "" : offBand.out;
+        if(r.rule && r.rule.start_hour !== undefined){
+          pcStart.value = r.rule.start_hour;
+          pcEnd.value = r.rule.end_hour;
+        }
+        priceMsg.textContent = "已载入 " + r.channel + "/" + r.model + "；改完点保存。";
+      }));
+      var del = secButton("删除", function(){
+        if(del.getAttribute("data-armed") !== "1"){
+          del.setAttribute("data-armed", "1");
+          del.textContent = "确认";
+          setTimeout(function(){ del.setAttribute("data-armed", "0"); del.textContent = "删除"; }, 6000);
+          return;
+        }
+        api("/api/control/pricing", {action: "delete", channel: r.channel, model: r.model})
+          .then(function(){ priceMsg.textContent = "已删除 " + r.model; loadPricing(); })
+          .catch(function(err){ priceMsg.textContent = "删除失败 · " + err.message; });
+      }, "danger");
+      box.appendChild(del);
+      act.appendChild(box);
+      priceRows.appendChild(tr);
+    });
+  }
+  function pricePayload(){
+    return {
+      action: "save", channel: pcChannel.value, model: pcModel.value.trim(),
+      in: pcIn.value, cache: pcCache.value, out: pcOut.value,
+      off_in: pcOffIn.value, off_cache: pcOffCache.value, off_out: pcOffOut.value
+    };
+  }
+
+  // ── 用量查账 ────────────────────────────────────
+  function loadUsage(span){
+    if(span) usageSpan = span;
+    return panelFetch("/api/usage/range?tz=" + tzOff() + "&span=" + usageSpan)
+      .then(renderUsage)
+      .catch(function(err){ usageWindow.textContent = "不可读 · " + err.message; });
+  }
+  function renderUsage(d){
+    lastUsage = d;
+    var t = d.totals || {};
+    usageWindow.textContent = fmtTs(d.start) + " → " + fmtTs(d.end) + " · " + TZ[tzKey].short;
+    usageTotals.textContent = fmtInt(t.requests) + " / " + fmtInt(t.errors) + " / " + fmtInt(t.unpriced);
+    usageTokens.textContent = fmtInt(t.prompt_tokens) + "/" + fmtInt(t.cached_tokens) + "/" + fmtInt(t.completion_tokens);
+    usageCost.textContent = "¥" + fmtCny(t.cost_cny) + (t.unpriced ? " · 含未计价" : "");
+    var rows = usageMode === "model" ? (d.by_model || []).slice() : (d.by_channel || []);
+    if(usageMode === "model"){
+      rows.sort(function(a, b){ return (Number(b.cost_cny) || 0) - (Number(a.cost_cny) || 0); });
+    }
+    if(usageHead) usageHead.textContent = usageMode === "model" ? "模型" : "渠道";
+    usageRows.textContent = "";
+    if(!rows.length){
+      emptyRow(usageRows, "窗口内无请求", 5);
+    } else {
+      rows.slice(0, 12).forEach(function(r, idx){
+        var tr = document.createElement("tr");
+        var label = cell(tr, usageMode === "model" ? r.model : r.channel, "mono");
+        label.title = usageMode === "model" ? r.model : r.channel;
+        if(usageMode === "model" && idx === 0) sub(label, "花费居首");
+        cell(tr, fmtInt(r.requests), "num mono");
+        cell(tr, fmtInt(r.errors), "num mono");
+        cell(tr, fmtInt(r.tokens), "num mono");
+        cell(tr, "¥" + fmtCny(r.cost_cny), "num mono");
+        usageRows.appendChild(tr);
+      });
+    }
+    var hours = d.by_hour || [];
+    var max = 1;
+    hours.forEach(function(h){ if(h.requests > max) max = h.requests; });
+    usageHours.textContent = "";
+    hours.forEach(function(h){
+      var row = document.createElement("div");
+      row.className = "bar-row";
+      var label = document.createElement("b");
+      label.textContent = pad(h.hour) + "";
+      row.appendChild(label);
+      var track = document.createElement("div");
+      track.className = "bar-track";
+      var fill = document.createElement("i");
+      fill.style.width = Math.round(h.requests / max * 100) + "%";
+      track.appendChild(fill);
+      row.appendChild(track);
+      var count = document.createElement("span");
+      count.textContent = fmtInt(h.requests);
+      row.appendChild(count);
+      usageHours.appendChild(row);
+    });
+    usageHourNote.textContent = hours.length ? (TZ[tzKey].short + " 切桶") : "—";
+  }
+
+  function csvCell(value){
+    var text = value === null || value === undefined ? "" : String(value);
+    return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+  }
+  function downloadCsv(name, header, rows){
+    var lines = [header.map(csvCell).join(",")];
+    rows.forEach(function(r){ lines.push(r.map(csvCell).join(",")); });
+    var blob = new Blob(["\ufeff" + lines.join("\r\n")], {type: "text/csv;charset=utf-8"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+  function loadRecent(){
+    var q = "/api/usage?limit=30";
+    if(streamChannel.value) q += "&channel=" + encodeURIComponent(streamChannel.value);
+    if(streamState.value === "err") q += "&errors=1";
+    return panelFetch(q).then(function(d){
+      renderRecent(d.rows || []);
+    }).catch(function(){ });
+  }
+
+  function loadOps(){
+    loadPricing();
+    loadUsage();
+    loadLocks();
+    if((streamChannel && streamChannel.value) || (streamState && streamState.value)) loadRecent();
+    if(opsTick++ % 2 === 0) loadMonitor();
+  }
+  function loadMonitor(){
+    return panelFetch("/api/monitor").then(function(m){
+      renderMonitor(m, lastStatus ? lastStatus.status : "");
+    }).catch(function(){ });
+  }
+
+  // ── 事件 ───────────────────────────────────────
+  chainProbeBtn.addEventListener("click", function(){
+    chainProbeBtn.disabled = true;
+    hopStamp.textContent = "探测中…";
+    api("/api/control/monitor", {action: "probe", channel: probeTarget.value})
+      .then(function(r){ lastProbe = r; renderHops(r); })
+      .catch(function(err){ hopStamp.textContent = "探测失败 · " + err.message; })
+      .finally(function(){ chainProbeBtn.disabled = false; });
+  });
+  tzPick.addEventListener("change", function(){
+    tzKey = TZ[tzPick.value] ? tzPick.value : "cst";
+    try { localStorage.setItem("kwsa_tz", tzKey); } catch(e){}
+    if(lastStatus) render(lastStatus);
+    loadUsage();
+  });
+  catalogFilter.addEventListener("input", function(){
+    if(lastStatus) renderCatalog(lastStatus.catalog || {});
+  });
+  if(catalogOffOnly){
+    catalogOffOnly.addEventListener("change", function(){
+      if(lastStatus) renderCatalog(lastStatus.catalog || {});
+    });
+  }
+  streamChannel.addEventListener("change", loadRecent);
+  streamState.addEventListener("change", loadRecent);
+  pcChannel.addEventListener("change", fillCatalogSelects);
+  document.getElementById("priceSave").addEventListener("click", function(){
+    if(!pcModel.value.trim() || pcIn.value === "" || pcCache.value === "" || pcOut.value === ""){
+      priceMsg.textContent = "模型与峰 IN/CA/OUT 必填。";
+      return;
+    }
+    api("/api/control/pricing", pricePayload()).then(function(){
+      priceMsg.textContent = "已写入 " + pcChannel.value + "/" + pcModel.value.trim() +
+        "；新请求按新价计价。";
+      loadPricing();
+      load(true);
+    }).catch(function(err){ priceMsg.textContent = "保存失败 · " + err.message; });
+  });
+  document.getElementById("priceRule").addEventListener("click", function(){
+    api("/api/control/pricing", {action: "peak_rule", channel: pcChannel.value,
+      rule: {kind: "utc_weekday_window", start_hour: Number(pcStart.value), end_hour: Number(pcEnd.value)}})
+      .then(function(){
+        priceMsg.textContent = "峰窗已设为 UTC " + pad(Number(pcStart.value)) + "-" +
+          pad(Number(pcEnd.value)) + " · " + zoneHours(Number(pcStart.value), Number(pcEnd.value));
+        loadPricing();
+        load(true);
+      })
+      .catch(function(err){ priceMsg.textContent = "峰窗失败 · " + err.message; });
+  });
+  document.getElementById("priceClearRule").addEventListener("click", function(){
+    api("/api/control/pricing", {action: "peak_rule", channel: pcChannel.value, rule: {kind: "flat"}})
+      .then(function(){ priceMsg.textContent = "已改单一价：只取峰价字段。"; loadPricing(); load(true); })
+      .catch(function(err){ priceMsg.textContent = "失败 · " + err.message; });
+  });
+  document.getElementById("legSave").addEventListener("click", function(){
+    api("/api/control/egress", {action: "save", id: legId.value.trim(),
+      name: legName.value.trim(), url: legUrl.value.trim(),
+      enabled: legEnabled.value === "1"})
+      .then(function(){ legId.value = ""; legName.value = ""; legUrl.value = ""; load(true); })
+      .catch(function(err){ egressStamp.textContent = "保存失败 · " + err.message; });
+  });
+  document.getElementById("bindSave").addEventListener("click", function(){
+    api("/api/control/egress", {action: "channel", channel: bindChannel.value, id: bindLeg.value})
+      .then(function(){ load(true); })
+      .catch(function(err){ egressStamp.textContent = "绑定失败 · " + err.message; });
+  });
+  legDefault.addEventListener("change", function(){
+    api("/api/control/egress", {action: "default", id: legDefault.value})
+      .then(function(){ load(true); });
+  });
+  function ocPayload(action){
+    return {action: action || "save", mode: ocMode.value, channel: ocChannel.value.trim(),
+      bridge_url: ocBridge.value.trim(), token: ocToken.value,
+      models: ocModels.value.split(/[\n,]+/).map(function(s){ return s.trim(); }).filter(Boolean),
+      egress: ocEgress.value};
+  }
+  document.getElementById("ocSave").addEventListener("click", function(){
+    api("/api/control/oc", ocPayload("save")).then(function(d){
+      ocHydrated = false;
+      ocNotice = d.warning || "";
+      ocToken.value = "";
+      ocMsg.textContent = ocNotice ? "⚠ " + ocNotice : "已保存并热加载；虚拟渠道随开关出现。";
+      load(true);
+    }).catch(function(err){ ocMsg.textContent = "保存失败 · " + err.message; });
+  });
+  ocToggle.addEventListener("click", function(){
+    var enabled = ocToggle.getAttribute("data-enabled") === "1";
+    var payload = ocPayload(enabled ? "disable" : "enable");
+    api("/api/control/oc", payload).then(function(d){
+      ocHydrated = false;
+      ocNotice = d.warning || "";
+      ocMsg.textContent = ocNotice ? "⚠ " + ocNotice
+        : (enabled ? "OC 桥已关闭，虚拟渠道一并下线。" : "OC 桥已开启。");
+      load(true);
+    }).catch(function(err){ ocMsg.textContent = "切换失败 · " + err.message; });
+  });
+  document.getElementById("ocProbe").addEventListener("click", function(){
+    ocMsg.textContent = "探活中…";
+    api("/api/control/oc", {action: "probe"}).then(function(r){
+      lastProbe = r;
+      renderHops(r);
+      if(r.ok && r.models && r.models.length){
+        ocNotice = "";
+        ocModels.value = r.models.join("\n");
+        ocMsg.textContent = "通 · HTTP " + r.status + " · 探测到 " + r.models.length +
+          " 个模型已回填，保存后进入目录";
+      } else if(r.ok){
+        ocMsg.textContent = "通 · HTTP " + r.status + " · " + (r.egress || "direct") +
+          (r.models_error ? " · 清单拉取失败: " + r.models_error : " · 未返回模型清单");
+      } else {
+        ocMsg.textContent = "不通 · " + (r.error || "未知");
+      }
+    }).catch(function(err){ ocMsg.textContent = "探活失败 · " + err.message; });
+  });
+
+  function loadLocks(){
+    panelFetch("/api/groups").then(function(d){
+      var locks = (d && d.locks) || [];
+      lockNote.textContent = locks.length ? locks.length + " 条 · TTL 内粘性" : "无";
+      lockRows.textContent = "";
+      locks.slice(0, 6).forEach(function(l){
+        var chip = document.createElement("span");
+        chip.className = "chip";
+        chip.textContent = (l.model || "—") + " · " +
+          Math.max(0, Math.round((l.ttl_remaining || 0) / 60)) + "m";
+        chip.title = "task " + (l.task_id || "—") + " / group " + (l.group_id || "—");
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "×";
+        btn.title = "释放该任务锁";
+        btn.addEventListener("click", function(){
+          btn.disabled = true;
+          api("/api/locks/release", {task_id: l.task_id, group_id: l.group_id})
+            .then(loadLocks)
+            .catch(function(){ btn.disabled = false; });
+        });
+        chip.appendChild(btn);
+        lockRows.appendChild(chip);
+      });
+    }).catch(function(){ lockNote.textContent = "不可读"; });
+  }
+  document.getElementById("mxDelete").addEventListener("click", function(){
+    var btn = this;
+    var gid = mxGroup.value;
+    if(gid === "__new"){
+      routeCheck.textContent = "先选一个已有分组再删。";
+      return;
+    }
+    if(btn.getAttribute("data-armed") !== "1"){
+      btn.setAttribute("data-armed", "1");
+      btn.textContent = "确认删除";
+      setTimeout(function(){
+        btn.setAttribute("data-armed", "0");
+        btn.textContent = "删除分组";
+      }, 6000);
+      return;
+    }
+    btn.setAttribute("data-armed", "0");
+    btn.textContent = "删除分组";
+    api("/api/control/group", {action: "delete_group", group: gid})
+      .then(function(){ routeCheck.textContent = "已删除分组 " + gid; load(true); })
+      .catch(function(err){ routeCheck.textContent = "删组失败 · " + err.message; });
+  });
+  document.getElementById("mxAdd").addEventListener("click", function(){
+    var gid = mxGroup.value;
+    if(gid === "__new"){
+      var suffix = mxGroupName.value.trim().replace(/[^A-Za-z0-9._-]/g, "-");
+      if(!suffix){ mxGroupName.focus(); return; }
+      gid = "auto/" + suffix;
+    }
+    api("/api/control/group", {action: "add_member", group: gid,
+      channel: mxChannel.value, id: mxModel.value.trim(),
+      tier: mxTier.value, priority: Number(mxPriority.value) || 100,
+      name: mxGroupName.value.trim()})
+      .then(function(d){
+        routeCheck.textContent = d.warning || ("已加入 " + gid);
+        mxModel.value = "";
+        load(true);
+      })
+      .catch(function(err){ routeCheck.textContent = "加入失败 · " + err.message; });
+  });
+  document.getElementById("usageRanges").addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-span]");
+    if(!btn) return;
+    $$("#usageRanges button").forEach(function(b){ b.setAttribute("aria-pressed", b === btn ? "true" : "false"); });
+    loadUsage(Number(btn.getAttribute("data-span")));
+  });
+  usageModes.addEventListener("click", function(e){
+    var btn = e.target.closest("button[data-mode]");
+    if(!btn) return;
+    usageMode = btn.getAttribute("data-mode") === "model" ? "model" : "channel";
+    $$("#usageModes button").forEach(function(b){ b.setAttribute("aria-pressed", b === btn ? "true" : "false"); });
+    if(lastUsage) renderUsage(lastUsage);
+  });
+  usageCsv.addEventListener("click", function(){
+    if(!lastUsage) return;
+    var rows = usageMode === "model" ? (lastUsage.by_model || []) : (lastUsage.by_channel || []);
+    downloadCsv("kwsa-usage-" + usageMode + "-" + usageSpan + ".csv",
+      [usageMode === "model" ? "模型" : "渠道", "请求", "错误", "令牌", "CNY", "未计价"],
+      rows.map(function(r){
+        return [usageMode === "model" ? r.model : r.channel, r.requests, r.errors,
+          r.tokens, fmtCny(r.cost_cny), r.unpriced];
+      }));
+  });
+  streamCsv.addEventListener("click", function(){
+    downloadCsv("kwsa-stream.csv",
+      ["时刻", "REQ ID", "通道", "模型", "状态", "峰谷", "延迟ms", "TTFTms", "IN", "CA", "OUT", "CNY", "错误"],
+      lastRecent.map(function(r){
+        return [fmtTs(r.ts), r.rid, r.channel, r.model, r.status, r.price_period,
+          r.elapsed_ms, r.ttft_ms, r.prompt_tokens, r.cached_tokens,
+          r.completion_tokens, r.cost_cny, r.error];
+      }));
+  });
+
+  if(accessBase && accessCurl){
+    accessBase.textContent = location.origin + "/v1";
+    accessCurl.textContent = [
+      "curl " + location.origin + "/v1/chat/completions \\",
+      "  -H \"Authorization: Bearer <KEY>\" -H \"Content-Type: application/json\" \\",
+      "  -d '{\"model\":\"auto/fast-chat\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}]}'"
+    ].join("\n");
+  }
+  copyAccessBtn.addEventListener("click", function(){
+    var text = accessCurl.textContent || "";
+    function done(){ copyAccessBtn.textContent = "已复制"; setTimeout(function(){ copyAccessBtn.textContent = "复制 curl"; }, 1600); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(function(){ copyAccessBtn.textContent = "手动复制"; });
+    } else {
+      copyAccessBtn.textContent = "手动复制";
+    }
+  });
+
+  clock();
+  setInterval(clock, 1000);
+  load(false);
+  setInterval(function(){ if(!document.hidden) load(false); }, 15000);
+})();
+</script>
+</body>
+</html>

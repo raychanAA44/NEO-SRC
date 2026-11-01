@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>运行速览 · HUB NEO 网关控制台</title>
+<link rel="stylesheet" href="assets/css/base.css?v=20261027d">
+<link rel="stylesheet" href="assets/css/fusion.css?v=20261027d">
+</head>
+<body data-mode="snapshot" data-profile="local">
+<a class="skip-link" href="#view-root">跳到主内容</a>
+
+<button class="index-clip" id="drawerTrigger" type="button" aria-expanded="false" aria-controls="drawer" title="展开视图索引（I）">
+  <span class="clip-grooves" aria-hidden="true"></span>
+  <span class="clip-label">视图索引 / INDEX</span>
+  <span class="clip-count">07</span>
+</button>
+
+<div class="drawer-scrim" id="drawerScrim" aria-hidden="true"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="HUBNG 视图索引" aria-hidden="true">
+  <header class="drawer-head">
+    <div class="drawer-kicker">HUBNG / GATEWAY ENGINEERING INDEX</div>
+    <div class="drawer-title">
+      <h2>视图索引<small>VIEW INDEX / 07 VIEWS</small></h2>
+      <button class="drawer-close" id="drawerClose" type="button" aria-label="收起索引">×</button>
+    </div>
+  </header>
+
+  <nav aria-label="视图索引">
+    <div class="drawer-group">运行视图 / OVERVIEW</div>
+    <a class="drawer-link" href="#/overview" data-view="overview">
+      <span class="d-no">01</span>
+      <span class="d-name">运行速览<em>Operations Overview</em></span>
+      <span class="d-meta">公开</span>
+    </a>
+    <a class="drawer-link" href="#/stream" data-view="stream">
+      <span class="d-no">02</span>
+      <span class="d-name">实时流水<em>Live Usage Stream</em></span>
+      <span class="d-meta">公开</span>
+    </a>
+    <a class="drawer-link" href="#/models" data-view="models">
+      <span class="d-no">03</span>
+      <span class="d-name">模型目录<em>Model Catalog</em></span>
+      <span class="d-meta">公开</span>
+    </a>
+    <div class="drawer-group">管理视图 / MANAGEMENT</div>
+    <a class="drawer-link" href="#/routing" data-view="routing">
+      <span class="d-no">04</span>
+      <span class="d-name">路由管理<em>Routing Management</em></span>
+      <span class="d-meta">控制</span>
+    </a>
+    <a class="drawer-link" href="#/ledger" data-view="ledger">
+      <span class="d-no">05</span>
+      <span class="d-name">用量账本<em>Usage Ledger</em></span>
+      <span class="d-meta">控制</span>
+    </a>
+    <a class="drawer-link" href="#/channels" data-view="channels">
+      <span class="d-no">06</span>
+      <span class="d-name">渠道管理<em>Channel Management</em></span>
+      <span class="d-meta">控制</span>
+    </a>
+    <a class="drawer-link" href="#/vault" data-view="vault">
+      <span class="d-no">07</span>
+      <span class="d-name">密钥管理<em>API Key Management</em></span>
+      <span class="d-meta">控制</span>
+    </a>
+    <div class="drawer-group">附录 / APPENDIX</div>
+    <a class="drawer-link" href="#/audit" data-view="audit">
+      <span class="d-no">A</span>
+      <span class="d-name">架构附录<em>Architecture Appendix</em></span>
+      <span class="d-meta">底稿</span>
+    </a>
+  </nav>
+
+  <button class="drawer-link drawer-settings" id="settingsEntry" type="button" aria-controls="workOrder" title="面板设置（口令 / 接入 / 重载 / 缓存 / 日志）">
+    <span class="d-no" aria-hidden="true">⚙</span>
+    <span class="d-name">面板设置<em>Panel Settings</em></span>
+    <span class="d-meta">本地</span>
+  </button>
+
+  <footer class="drawer-foot">
+    <div class="drawer-stamps">
+      <span class="stamp hollow" id="drawerState">SNAPSHOT</span>
+      <span class="stamp hollow" id="drawerAccountCount">11 个账号</span>
+    </div>
+    <div>本地节点 / <span id="drawerNode">127.0.0.1:8888</span><br><span id="drawerSource">读数未到</span></div>
+    <div style="margin-top:9px"><kbd>I</kbd> 开合索引 &nbsp; <kbd>ESC</kbd> 收轨</div>
+  </footer>
+</aside>
+
+<div class="shell">
+  <div class="folio" aria-label="版次信息">
+    <span class="folio-brand">HUB NEO — GATEWAY OPERATIONS</span>
+    <span class="folio-sep">/</span>
+    <span>VOL. 05</span>
+    <span id="folioDate">—</span>
+    <span class="folio-push" id="folioNode">LOCAL NODE 127.0.0.1:8888</span>
+    <span class="stamp" id="folioMode">SNAPSHOT</span>
+    <span class="stamp hollow" id="folioProfile">LOCAL</span>
+    <button class="btn small" type="button" id="receiptBtn" title="查看当前会话的作业回执">回执历史<span class="btn-count" id="receiptCount">0</span></button>
+    <button class="btn small" type="button" id="refreshBtn">刷新读数</button>
+  </div>
+
+  <div class="fx-upstream-alert" id="upstreamAlert" role="alert" aria-live="assertive" hidden>
+    <div class="fx-upa-signal">
+      <span class="stamp" id="upstreamAlertStamp">UPSTREAM DOWN</span>
+      <b id="upstreamAlertTitle">云端上游不可达</b>
+    </div>
+    <div class="fx-upa-body">
+      <span id="upstreamAlertDetail">—</span>
+      <time id="upstreamAlertTime">—</time>
+    </div>
+    <div class="fx-upa-actions">
+      <button class="btn small" type="button" id="upstreamAlertProbe">立即探活</button>
+      <button class="btn small filled" type="button" id="upstreamAlertAction" data-upstream-target="local">一键回退到本地 hub-ng</button>
+    </div>
+  </div>
+
+  <div class="fx-upstream-alert" id="budgetAlert" role="status" aria-live="polite" hidden>
+    <div class="fx-upa-signal">
+      <span class="stamp" id="budgetAlertStamp">BUDGET 80%</span>
+      <b id="budgetAlertTitle">预算接近上限</b>
+    </div>
+    <div class="fx-upa-body">
+      <span id="budgetAlertDetail">—</span>
+      <time id="budgetAlertTime">—</time>
+    </div>
+    <div class="fx-upa-actions">
+      <button class="btn small" type="button" id="budgetAlertGoto">去 07 调上限</button>
+    </div>
+  </div>
+
+  <main id="view-root" data-ready="0">
+
+    <!-- 读数未就绪时的占位：数据到达后由 app.js 收起并重画视图 -->
+    <div class="fx-boot-pending" id="bootPending" data-state="loading">
+      <div class="fx-pending-kicker">READINGS PENDING / 读数加载中</div>
+      <p class="fx-pending-text">正在读取网关读数，到达后自动重画本页。</p>
+    </div>
+
+    <!-- ═════════ 01 运行速览 ═════════ -->
+    <section class="view is-active" id="v-overview" data-view="overview" data-sheet="01" aria-labelledby="t-overview">
+      <header class="fx-masthead">
+        <div class="fx-mast-left">
+          <div class="fx-kicker">
+            <span>GATEWAY OPERATIONS / 网关运行</span>
+            <span>HUB NEO · LOCAL READ MODEL</span>
+          </div>
+          <div class="fx-brandline">
+            <h1>HUBNG</h1>
+            <div class="fx-brand-cn">网关控制台<em>荒原报刊 × 破碎重机</em></div>
+          </div>
+          <p class="fx-deck"><b>核心遥测与运行数据。</b> 请求、费用与渠道状态。</p>
+          <p class="fx-status-line" id="ovStatusLine">正在读取网关状态…</p>
+          <div class="fx-mast-strip">
+            <span>受审对象 <b id="ovAuditNode">127.0.0.1:8888</b></span>
+            <span>数据版本 <b id="ovVersion">v0.1.0</b></span>
+            <span>抓取 <b id="ovStamp">—</b></span>
+            <span>上游 <b id="ovUpstreamState">—</b></span>
+            <span>写操作 <b>需确认</b></span>
+          </div>
+        </div>
+        <div class="fx-mast-right">
+          <div class="fx-mast-top">
+            <span>ISSUE 05 / 2026.10.24</span>
+            <span class="stamp" id="ovHealthStamp">HEALTH —</span>
+          </div>
+          <div class="fx-mast-title">
+            <span class="fx-big-index">01</span>
+            <div>
+              <h2 id="t-overview">运行速览</h2>
+              <p>TELEMETRY OVERVIEW</p>
+            </div>
+          </div>
+          <div class="fx-mast-grid">
+            <div><span>NODE / 节点</span><b id="ovNode">127.0.0.1:8888</b></div>
+            <div><span>HEALTH / 健康分</span><b id="ovHealth">—</b></div>
+            <div><span>DATA / 数据时标</span><b id="ovDataTime">—</b></div>
+            <div><span>SYNC / 云端水位</span><b id="ovSync">—</b></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="fx-overview-body">
+        <div class="fx-telemetry">
+          <section class="fx-hero-panel" aria-label="核心遥测">
+            <div class="fx-panel-head">
+              <div>
+                <div class="eyebrow">CORE TELEMETRY / 核心遥测</div>
+                <h3>窗口读数 <em id="ovWindowLabel">TODAY 00:00–24:00</em></h3>
+              </div>
+              <div class="fx-panel-actions">
+                <div class="fx-metric-switch seg" id="ovMetricSwitch" role="tablist" aria-label="遥测指标切换">
+                  <button type="button" role="tab" data-metric="requests" class="is-active" aria-selected="true">请求</button>
+                  <button type="button" role="tab" data-metric="spend" aria-selected="false">花费</button>
+                  <button type="button" role="tab" data-metric="tokens" aria-selected="false">令牌</button>
+                  <button type="button" role="tab" data-metric="channels" aria-selected="false">渠道</button>
+                </div>
+                <button class="btn small" type="button" id="ovDetailBtn" aria-expanded="false" aria-controls="ovMicro ovIngress">细节 ▾</button>
+              </div>
+            </div>
+            <div class="fx-hero" id="ovHero"></div>
+            <div class="fx-mix" id="ovMix"></div>
+            <div class="fx-token-box" id="ovTokens"></div>
+            <div class="fx-micro" id="ovMicro" hidden></div>
+            <div class="fx-pulse" id="ovPulse"></div>
+            <div class="fx-stage-foot"><span>同位切换 · 只读</span><span>READMODEL + BILLING</span></div>
+          </section>
+
+          <div class="fx-subgrid" id="ovSub"></div>
+          <div class="fx-tape" id="ovTape"></div>
+          <div class="fx-ingress" id="ovIngress" hidden></div>
+        </div>
+
+        <aside class="fx-brief" aria-label="异常与降级简报" id="ovBrief"></aside>
+      </div>
+
+      <div class="fx-inventory" id="ovInventory" aria-label="系统底账"></div>
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span id="ovFootSource">—</span><span class="push">READ MODEL</span><span class="sheet-no">SHEET 01 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 02 实时流水 ═════════ -->
+    <section class="view" id="v-stream" data-view="stream" data-sheet="02" aria-labelledby="t-stream">
+      <header class="view-head">
+        <div class="title-block">
+          <span class="folio-index">02</span>
+          <div><h2 id="t-stream">实时流水</h2><div class="view-en">LIVE USAGE STREAM</div></div>
+        </div>
+        <p class="head-deck">实时入站流水与真实计费回执。</p>
+        <div class="head-side">
+          <div class="head-stat"><span>TAIL / 缓冲</span><b id="streamCountHead">50</b><em>ROWS</em></div>
+          <div class="head-stat"><span>SPAN / 跨度</span><b id="streamSpanHead">—</b><em>MIN</em></div>
+        </div>
+      </header>
+
+      <div class="fx-stream-filter" aria-label="流水筛选">
+        <span class="fx-filter-label">筛选 / FILTER</span>
+        <div class="seg" id="streamStatus" role="group" aria-label="结果筛选">
+          <button type="button" data-status="all" class="is-active">全部</button>
+          <button type="button" data-status="ok">成功</button>
+          <button type="button" data-status="error">失败</button>
+        </div>
+        <label class="field"><span>CH</span><select id="streamChannel"><option value="all">全部渠道</option></select></label>
+        <label class="field"><span>MDL</span><select id="streamModel"><option value="all">全部模型</option></select></label>
+        <label class="field"><span>WIN</span><select id="streamWindow" title="统计窗口：按真实时间窗算，不按载入条数冒充"><option value="60">近 1 小时</option><option value="360">近 6 小时</option><option value="1440">近 24 小时</option><option value="0" selected>本次载入样本</option></select></label>
+        <label class="field"><span>Q</span><input id="streamSearch" type="search" placeholder="模型 / RID / KEY" autocomplete="off"></label>
+        <span class="spacer"></span>
+        <span class="fx-filter-result">显示 <b id="streamVisible">0</b> / 缓冲 <b id="streamBuffer">50</b></span>
+        <button class="btn small" type="button" id="streamReset">清空筛选</button>
+      </div>
+
+      <div class="fx-stream-grid">
+        <section class="fx-stream-panel" aria-label="实时入站流水">
+          <div class="fx-dispatch-strip" id="streamDispatch" aria-label="网关派发台账"></div>
+          <div class="fx-stream-head" id="streamHead" role="row"></div>
+          <div class="fx-stream-body" id="streamRows" role="rowgroup" aria-live="polite"></div>
+          <div class="fx-stream-foot"><span class="live-dot" aria-hidden="true"></span><span id="streamState">TAIL / 最近 50 条</span><span class="push">悬停反色 · 单击查看回执</span></div>
+        </section>
+        <aside class="fx-stream-rail" id="streamRail" aria-label="流水回执"></aside>
+      </div>
+
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span>BUFFER 50 · /api/usage</span><span class="push">用量记录 / 派发轨迹</span><span class="sheet-no">SHEET 02 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 03 模型目录 ═════════ -->
+    <section class="view" id="v-models" data-view="models" data-sheet="03" aria-labelledby="t-models">
+      <header class="view-head">
+        <div class="title-block">
+          <span class="folio-index">03</span>
+          <div><h2 id="t-models">模型目录</h2><div class="view-en">MODEL CATALOG</div></div>
+        </div>
+        <p class="head-deck">双轴排架 · 全量目录 · 真实筛选。</p>
+        <div class="head-side">
+          <div class="fx-ratio-badge" aria-label="活跃目录与可见性快照">
+            <span class="stamp">ACTIVE <b id="modelTotal">66</b></span>
+            <span class="stamp hollow">SNAPSHOT <b id="modelFootSnap">102</b></span>
+          </div>
+          <div class="head-stat"><span>ENABLED / 启用</span><b id="modelEnabled">23</b><em>MODELS</em></div>
+        </div>
+      </header>
+
+      <div class="fx-model-tools" aria-label="目录筛选">
+        <div class="seg" id="modelDensity" role="group" aria-label="密度">
+          <button type="button" data-density="cards" class="is-active">卡片档</button>
+          <button type="button" data-density="matrix">钢板档</button>
+        </div>
+        <div class="seg" id="modelAxis" role="group" aria-label="组织轴">
+          <button type="button" data-axis="model" class="is-active">按模型</button>
+          <button type="button" data-axis="channel">按渠道</button>
+        </div>
+        <label class="field"><span>CH</span><select id="fChannel"><option value="all">全部渠道</option></select></label>
+        <label class="field"><span>CH·MDL</span><select id="fCombo" title="按渠道×模型组合定位，一个渠道同名模型不混在一起"><option value="all">全部渠道×模型</option></select></label>
+        <label class="field"><span>REALM</span><select id="fRealm"><option value="all">全部</option><option value="intl">国际</option><option value="cn">境内</option><option value="custom">第三方</option></select></label>
+        <label class="field"><span>STATE</span><select id="fState"><option value="all">全部</option><option value="on">已启用</option><option value="off">未启用</option></select></label>
+        <label class="field"><span>CAP</span><select id="fCap"><option value="all">全部</option><option value="reasoning">推理</option><option value="vision">视觉</option><option value="tools">工具</option><option value="long">≥200K</option></select></label>
+        <label class="field"><span>BILL</span><select id="fBill"><option value="all">全部</option><option value="free">零倍率</option><option value="metered">计费</option></select></label>
+        <label class="field"><span>Q</span><input id="modelSearch" type="search" placeholder="模型 / 厂商" autocomplete="off"></label>
+        <span class="fx-filter-result">显示 <b id="modelCount">0</b> / <b id="modelCountTotal">—</b></span>
+        <button class="btn small" type="button" id="priceBookBtn" title="查看五渠道价目与降级标记">渠道价目</button>
+        <div class="fx-batch" id="modelBatch">
+          <button class="btn small" type="button" id="modelBatchBtn" aria-expanded="false" aria-controls="modelBatchMenu">批量运维 ▾</button>
+          <div class="fx-batch-menu" id="modelBatchMenu" hidden>
+            <div class="fx-batch-row"><span>VENDOR / 厂商</span><select id="batchVendor"></select><button class="btn small" type="button" data-batch="vendor-off">停用</button></div>
+            <div class="fx-batch-row"><span>EFFORT / 思考档</span><select id="batchEffort"></select><button class="btn small" type="button" data-batch="effort-on">启用</button></div>
+            <div class="fx-batch-row"><button class="btn small" type="button" data-batch="filter-off">停用当前筛选</button><button class="btn small" type="button" data-batch="filter-on">启用当前筛选</button></div>
+            <div class="fx-batch-row"><button class="btn small" type="button" data-batch="bench-filter">测速当前筛选</button><span>仅启用 · 近 10 分钟复用缓存</span></div>
+            <div class="fx-batch-note">按渠道分组提交 · 结果逐组落印。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fx-model-shell">
+        <div class="fx-model-view" id="modelView" aria-live="polite"></div>
+      </div>
+
+      <div class="fx-spare" id="spareBay" aria-label="待收录模型"></div>
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span>CARD / MATRIX</span><span class="push">排序 / 筛选 / 测速</span><span class="sheet-no">SHEET 03 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 04 路由管理 ═════════ -->
+    <section class="view" id="v-routing" data-view="routing" data-sheet="04" aria-labelledby="t-routing">
+      <header class="view-head">
+        <div class="title-block">
+          <span class="folio-index">04</span>
+          <div><h2 id="t-routing">路由管理</h2><div class="view-en">ROUTING MANAGEMENT</div></div>
+        </div>
+        <p class="head-deck">分组编排、槽位矩阵与任务锁。</p>
+        <div class="head-side">
+          <div class="head-stat"><span>SLOTS / 槽位</span><b id="routeSlotsHead">46</b><em>SLOTS</em></div>
+          <div class="head-stat"><span>CELLS / 账号×模型</span><b id="routeCellsHead">72</b><em>CELLS</em></div>
+        </div>
+      </header>
+
+      <div class="fx-route-strip" id="routeStrip" aria-label="路由状态"></div>
+
+      <div class="fx-route-grid">
+        <aside class="fx-route-left" id="routeLeft" aria-label="入站端点"></aside>
+        <section class="fx-route-center" id="routeCenter" aria-label="槽位矩阵"></section>
+        <aside class="fx-route-right" id="routeRight" aria-label="冷却与切换"></aside>
+      </div>
+
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span>分组与任务锁</span><span class="push">槽位 / 分组 / 任务锁</span><span class="sheet-no">SHEET 04 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 05 用量账本 ═════════ -->
+    <section class="view" id="v-ledger" data-view="ledger" data-sheet="05" aria-labelledby="t-ledger">
+      <header class="view-head">
+        <div class="title-block">
+          <span class="folio-index">05</span>
+          <div><h2 id="t-ledger">用量账本</h2><div class="view-en">USAGE LEDGER</div></div>
+        </div>
+        <p class="head-deck">人民币、积分、官方差额三口径并列。</p>
+        <div class="head-side">
+          <div class="head-stat"><span>LEDGER / 账期</span><b id="ledgerDate">2026.10</b><em>OPEN</em></div>
+          <span class="stamp" id="ledgerCheck">READ MODEL</span>
+        </div>
+      </header>
+
+      <div class="fx-ledger-tabs">
+        <div class="seg" id="ledgerRange" role="group" aria-label="账期切换">
+          <button type="button" data-range="today" class="is-active">今日</button>
+          <button type="button" data-range="week">本周</button>
+          <button type="button" data-range="all">累计</button>
+        </div>
+        <span class="fx-ledger-note">结算口径 · 失败不计费 · 缓存折价 · <span id="ledgerWindow">00:00 — 24:00 CST</span></span>
+        <label class="fx-ledger-filter"><span>渠道</span><select id="ledgerChannel" aria-label="按渠道筛选导出"><option value="all">全部渠道</option></select></label>
+        <label class="fx-ledger-filter" title="自定义时段优先于账期页签；两个都填才生效"><span>时段</span><input id="ledgerFrom" type="datetime-local" aria-label="自定义开始时间"><input id="ledgerTo" type="datetime-local" aria-label="自定义结束时间"><button class="btn small" type="button" id="ledgerRangeClear" title="回到账期页签">清</button></label>
+        <span class="spacer"></span>
+        <button class="btn small" type="button" id="ledgerExport">导出当前明细 CSV</button>
+        <button class="btn small" type="button" id="ledgerExportDecision">仅导出决策模型<span class="btn-count" id="ledgerDecisionCount" aria-hidden="true">0</span></button>
+        <button class="btn small" type="button" id="ledgerErrors">错误台账</button>
+      </div>
+
+      <div class="fx-vouchers" id="ledgerVouchers" aria-label="账期冲压凭证"></div>
+      <div class="fx-costbar" id="ledgerCost" aria-label="费用构成"></div>
+      <div class="fx-peakbar" id="ledgerPeak" aria-label="峰谷计费时钟"></div>
+
+      <div class="fx-ledger-grid">
+        <section class="fx-ledger-panel" aria-label="账目明细">
+          <div class="fx-ledger-head" role="row">
+            <span>时间<em>TIME</em></span><span>模型<em>MODEL</em></span><span>渠道<em>CHANNEL</em></span><span>用量<em>TOKENS / CACHE</em></span><span>费用<em>CNY</em></span>
+          </div>
+          <div class="fx-ledger-rows" id="ledgerRows" role="rowgroup"></div>
+          <div class="fx-ledger-total" id="ledgerTotal"></div>
+        </section>
+        <aside class="fx-audit-rail" id="ledgerRail" aria-label="账册校验"></aside>
+      </div>
+
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span>ROWS 50</span><span class="push">人民币 / 积分 / 官方用量</span><span class="sheet-no">SHEET 05 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 06 渠道管理 ═════════ -->
+    <section class="view" id="v-channels" data-view="channels" data-sheet="06" aria-labelledby="t-channels">
+      <header class="view-head">
+        <div class="title-block">
+          <span class="folio-index">06</span>
+          <div><h2 id="t-channels">渠道管理</h2><div class="view-en">CHANNEL MANAGEMENT</div></div>
+        </div>
+        <p class="head-deck">渠道状态、冷备与检修作业。</p>
+        <div class="head-side">
+          <div class="head-stat"><span>可见 / VISIBLE</span><b id="channelVisibleHead">0</b><em id="channelTotalHead">/ —</em></div>
+          <span class="stamp" id="channelCountHead">8 CABINETS</span>
+        </div>
+      </header>
+
+      <div class="fx-channel-strip" id="channelStrip" aria-label="渠道汇总"></div>
+      <div class="fx-channel-grid" id="channelGrid"></div>
+
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span id="channelFootStats">可见 — · 第三方 —</span><span class="push">启停 / 延迟 / 检修工单</span><span class="sheet-no">SHEET 06 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 07 密钥管理 ═════════ -->
+    <section class="view" id="v-vault" data-view="vault" data-sheet="07" aria-labelledby="t-vault">
+      <header class="view-head">
+        <div class="title-block">
+          <span class="folio-index">07</span>
+          <div><h2 id="t-vault">密钥管理</h2><div class="view-en">API KEY MANAGEMENT</div></div>
+        </div>
+        <p class="head-deck">API 密钥与机密密码本分区管理。</p>
+        <div class="head-side">
+          <div class="head-stat"><span>启用 / ACTIVE</span><b id="vaultActiveHead">3</b><em>/ 3</em></div>
+          <span class="stamp" id="vaultSeal">SEALED</span>
+        </div>
+      </header>
+
+      <div class="fx-vault-summary" id="vaultSummary" aria-label="凭据汇总"></div>
+      <div class="fx-vault-grid">
+        <section class="fx-vault-main" id="vaultKeys" aria-label="API 密钥甲舱"></section>
+        <aside class="fx-vault-rail" id="vaultRail" aria-label="凭据侧轨"></aside>
+      </div>
+
+      <footer class="sheet-foot"><span>HUB NEO / GATEWAY DISPATCH</span><span>密钥 3 · 已遮蔽</span><span class="push">权限范围 / 预算</span><span class="sheet-no">SHEET 07 / 07</span></footer>
+    </section>
+
+    <!-- ═════════ 附录 A 架构附录 ═════════ -->
+    <section class="view" id="v-audit" data-view="audit" data-sheet="A" aria-labelledby="t-audit">
+      <header class="fx-audit-head">
+        <div class="fx-audit-title">
+          <span class="folio-index">A</span>
+          <div>
+            <h2 id="t-audit">架构附录</h2>
+            <div class="view-en">FUSION DOSSIER / 31 PAGES → 7 VIEWS + 1 APPENDIX</div>
+          </div>
+        </div>
+        <p class="fx-audit-deck"><b>31 页归并 7 视图 · 数据回溯端点位。</b></p>
+        <div class="fx-audit-meta">
+          <div><span>DATA / 数据</span><b id="auditData">—</b></div>
+          <div><span>ROUTES / 槽位</span><b id="auditSlots">46</b></div>
+          <span class="stamp" id="auditMode">SNAPSHOT</span>
+        </div>
+      </header>
+
+      <div class="fx-audit-grid">
+        <section class="fx-audit-panel" id="auditBaseline" aria-label="现网实测"></section>
+        <section class="fx-audit-panel" id="auditMapping" aria-label="归并矩阵"></section>
+        <aside class="fx-audit-panel fx-audit-corrections" id="auditCorrections" aria-label="口径校正"></aside>
+      </div>
+
+      <div class="fx-audit-phases" id="auditPhases" aria-label="施工阶段"></div>
+      <footer class="sheet-foot"><span>HUBNG / FUSION DOSSIER</span><span>31 → 7 + A</span><span class="push">P0–P3 WIRED / P4 NOT RUN</span><span class="sheet-no">APPENDIX A</span></footer>
+    </section>
+
+  </main>
+</div>
+
+<!-- 容器二：机柜检修 / 工单抽屉 -->
+<div class="fx-wo-scrim" id="woScrim" aria-hidden="true"></div>
+<aside class="fx-wo" id="workOrder" role="dialog" aria-modal="true" aria-labelledby="woTitle" aria-hidden="true">
+  <header class="fx-wo-head">
+    <div>
+      <div class="fx-wo-kicker" id="woKicker">检修工单 / WORK ORDER</div>
+      <h2 id="woTitle">检修抽屉</h2>
+      <div class="fx-wo-meta" id="woMeta">WO-20261024-0000</div>
+    </div>
+    <button class="fx-wo-close" id="woClose" type="button" aria-label="收起工单">×</button>
+  </header>
+  <div class="fx-wo-body" id="woBody"></div>
+  <footer class="fx-wo-foot" id="woFoot"></footer>
+</aside>
+
+<!-- 容器二·附：纪事信笺（今日全量报表） -->
+<div class="fx-letter-scrim" id="letterScrim" aria-hidden="true"></div>
+<section class="fx-letter-modal" id="letterModal" role="dialog" aria-modal="true" aria-labelledby="letterTitle" aria-hidden="true">
+  <header class="fx-letter-head">
+    <div>
+      <div class="fx-letter-kicker">每日运营报告 / DAILY OPERATIONS REPORT</div>
+      <h2 id="letterTitle">每日运营报告</h2>
+      <div class="fx-letter-meta" id="letterMeta">网关运行摘要 · 端口 8888</div>
+    </div>
+    <button class="fx-letter-close" id="letterClose" type="button" aria-label="收起信笺">×</button>
+  </header>
+  <div class="fx-letter-stepper" id="letterStepper">
+    <div class="fx-letter-bar"><i id="letterBar"></i></div>
+    <div class="fx-letter-steptext" id="letterStepText">正在汇总入站流量…</div>
+  </div>
+  <div class="fx-letter-scroll" id="letterScroll">
+    <article class="fx-letter-parchment" id="letterBody"></article>
+  </div>
+  <footer class="fx-letter-foot">
+    <button class="btn small" type="button" id="copyLetterBtn">复制完整报告</button>
+    <button class="btn small" type="button" id="exportCsvBtn">导出 CSV</button>
+    <button class="btn small" type="button" id="printLetterBtn">打印 / PDF</button>
+    <span class="spacer"></span>
+    <button class="btn small filled" type="button" id="letterCloseFoot">收起信笺</button>
+  </footer>
+</section>
+
+<!-- 容器三：冲压作业票 -->
+<div class="fx-tickets" id="tickets" aria-live="polite" aria-label="作业票回执"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="assets/js/snapshot.js?v=20261027d"></script>
+<script src="assets/js/core.js?v=20261027d"></script>
+<script src="assets/js/data.js?v=20261027d"></script>
+<script src="assets/js/ui.js?v=20261027d"></script>
+<script src="assets/js/views-overview.js?v=20261027d"></script>
+<script src="assets/js/views-stream.js?v=20261027d"></script>
+<script src="assets/js/views-models.js?v=20261027d"></script>
+<script src="assets/js/views-routing.js?v=20261027d"></script>
+<script src="assets/js/views-ledger.js?v=20261027d"></script>
+<script src="assets/js/views-dispatch.js?v=20261027d"></script>
+<script src="assets/js/views-channels.js?v=20261027d"></script>
+<script src="assets/js/views-vault.js?v=20261027d"></script>
+<script src="assets/js/views-audit.js?v=20261027d"></script>
+<script src="assets/js/views-settings.js?v=20261027d"></script>
+<script src="assets/js/app.js?v=20261027d"></script>
+</body>
+</html>
