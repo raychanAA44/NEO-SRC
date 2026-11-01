@@ -1,10 +1,18 @@
 # HUB NEO — AI Routing Gateway
 
-HUB NEO is a local AI gateway with model routing, task locks, dispatch traces, a usage ledger, and an operations console. Kiro Crew was used as a development tool, including a multi-agent workflow for bounded tasks.
+HUB NEO is a local AI gateway with model routing, task locks, dispatch traces, a usage ledger, and an operations console. Kiro Crew was used as the development tool, including a multi-agent workflow for bounded tasks.
 
 ## Routing
 
 Explicit model IDs pass through the dispatcher unchanged. An `auto/*` group activates policy-based selection: existing task locks are reused; new decisions filter active candidates, enforce vision requirements, optionally match task domains and tiers, and select by priority. Task locks are in memory and reset on restart. Model upstream routing maps selected models to configured channels. The dispatch ledger may persist traces without storing prompts, response bodies or secrets.
+
+## Kiro workspace
+
+`.kiro/` contains the workspace assets used with Kiro:
+
+- `steering/` — product, technical, structure and workflow context loaded for every session.
+- `specs/code-optimization-phase1/` — requirements, design and task list for the shared database adapter and JSON I/O refactor.
+- `agents/` — custom `gateway-engineer` and `code-reviewer` agent definitions used for bounded implementation and review tasks.
 
 ## Local startup
 

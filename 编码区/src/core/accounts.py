@@ -20,7 +20,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-from core import clock, vendor_creds
+from core import clock, db_adapter, vendor_creds
 
 # 账号凭据落库格式：与保险仓同一套 seal/unseal 与同一把口令（HUB_VENDOR_KEY 或本地密钥文件）。
 # 旧行是明文 JSON，读取时仍兼容；新写入一律密文，列名 creds_encrypted 从此名前相符。
@@ -74,55 +74,9 @@ def _mysql(ledger) -> bool:
     return str(getattr(ledger, "backend", "sqlite") or "sqlite").strip().lower() == "mysql"
 
 
-class _Con:
-    """sqlite3 与 pymysql 的统一外壳：`?` 占位符自动翻译，行统一成 tuple。"""
-
-    def __init__(self, con, mysql: bool):
-        self._con = con
-        self._mysql = mysql
-
-    def executescript(self, sql: str) -> None:
-        if not self._mysql:
-            self._con.executescript(sql)
-            return
-        for stmt in sql.split(";"):          # pymysql 没有 executescript
-            if stmt.strip():
-                self.execute(stmt)
-
-    def execute(self, sql: str, args=()):
-        if self._mysql:
-            cur = self._con.cursor()
-            cur.execute(sql.replace("?", "%s"), args)
-            return cur
-        return self._con.execute(sql, args)
-
-
-def _rows(rows) -> list:
-    """pymysql DictCursor（dict）→ tuple，按 SELECT 列顺序，与 sqlite3.Row 同形状。"""
-    return [tuple(r.values()) if isinstance(r, dict) else tuple(r) for r in rows]
-
-
-@contextlib.contextmanager
-def _db(ledger):
-    """一次一连接，用完必关。
-
-    原实现用 `with ledger.connect() as con`：sqlite3 的 `with` 只管事务**不关连接**，
-    在 Windows 上会占住库文件，tearDown 里 unlink 就 PermissionError。
-    """
-    con = ledger.connect()
-    try:
-        yield _Con(con, _mysql(ledger))
-        con.commit()
-    finally:
-        try:
-            con.close()
-        except Exception:                    # noqa: BLE001 关闭失败不该盖住签到结果
-            pass
-
-
 def ensure_accounts_table(ledger) -> None:
     """确保 accounts 表存在（SQLite / MySQL 同一套调用）。"""
-    with _db(ledger) as con:
+    with db_adapter.transact(ledger.connect()) as con:
         con.executescript(ACCOUNTS_SCHEMA_MYSQL if _mysql(ledger) else ACCOUNTS_SCHEMA_SQLITE)
 
 
@@ -205,12 +159,13 @@ def import_text(ledger, channel: str, raw_text: str, realm: str = "default", nam
     account_name = name or f"{channel}-{realm}-{int(now) % 10000}"
     creds_blob = seal_creds({"token": token, "extra": extra})
 
-    with _db(ledger) as con:
+    with db_adapter.transact(ledger.connect()) as con:
         cur = con.execute(
             "INSERT INTO accounts (channel, realm, name, creds_encrypted, updated_at) VALUES (?, ?, ?, ?, ?)",
             (channel, realm, account_name, creds_blob, now)
         )
         account_id = cur.lastrowid
+        con.commit()
 
     return {
         "ok": True,
@@ -227,11 +182,12 @@ def list_accounts(ledger, channel: str = "") -> list[dict[str, Any]]:
     ensure_accounts_table(ledger)
     sql = ("SELECT id, channel, realm, name, creds_encrypted, last_checkin, credits, status, updated_at "
            "FROM accounts")
-    with _db(ledger) as con:
+    mysql = _mysql(ledger)
+    with db_adapter.transact(ledger.connect()) as con:
         if channel:
-            rows = _rows(con.execute(sql + " WHERE channel = ? ORDER BY id ASC", (channel,)).fetchall())
+            rows = db_adapter.normalize_rows(con.execute(sql + " WHERE channel = ? ORDER BY id ASC", (channel,)).fetchall(), mysql)
         else:
-            rows = _rows(con.execute(sql + " ORDER BY id ASC").fetchall())
+            rows = db_adapter.normalize_rows(con.execute(sql + " ORDER BY id ASC").fetchall(), mysql)
 
     out = []
     for r in rows:
@@ -272,8 +228,9 @@ def _plaintext_creds(blob) -> dict | None:
 def migrate_plaintext_creds(ledger) -> dict[str, Any]:
     """启动时把历史明文行一次性重加密：幂等，已有密文行不动。"""
     ensure_accounts_table(ledger)
-    with _db(ledger) as con:
-        rows = _rows(con.execute("SELECT id, creds_encrypted FROM accounts").fetchall())
+    mysql = _mysql(ledger)
+    with db_adapter.transact(ledger.connect()) as con:
+        rows = db_adapter.normalize_rows(con.execute("SELECT id, creds_encrypted FROM accounts").fetchall(), mysql)
     migrated: list[int] = []
     failed: list[int] = []
     for acc_id, blob in rows:
@@ -285,9 +242,10 @@ def migrate_plaintext_creds(ledger) -> dict[str, Any]:
         except Exception:                             # noqa: BLE001 口令不可用就别动这一行
             failed.append(int(acc_id))
             continue
-        with _db(ledger) as con:
+        with db_adapter.transact(ledger.connect()) as con:
             con.execute("UPDATE accounts SET creds_encrypted = ? WHERE id = ?",
                         (sealed, int(acc_id)))
+            con.commit()
         migrated.append(int(acc_id))
     return {"ok": not failed, "scanned": len(rows),
             "migrated": migrated, "failed": failed}
@@ -300,9 +258,10 @@ def delete_account(ledger, account_id) -> dict[str, Any]:
         target = int(account_id)
     except (TypeError, ValueError):
         return {"ok": False, "error": "id 必须是整数"}
-    with _db(ledger) as con:
+    with db_adapter.transact(ledger.connect()) as con:
         cur = con.execute("DELETE FROM accounts WHERE id = ?", (target,))
         removed = int(getattr(cur, "rowcount", 0) or 0)
+        con.commit()
     if removed <= 0:
         return {"ok": False, "id": target, "error": f"Account #{target} not found"}
     return {"ok": True, "id": target, "deleted": removed}
@@ -384,13 +343,14 @@ def _checkin_trae_online(token: str, extra: dict, timeout: int = 10) -> dict[str
 def checkin_account(ledger, account_id: int, mock_result: dict | None = None) -> dict[str, Any]:
     """执行单个账号签到。"""
     ensure_accounts_table(ledger)
-    with _db(ledger) as con:
+    mysql = _mysql(ledger)
+    with db_adapter.transact(ledger.connect()) as con:
         found = con.execute(
             "SELECT id, channel, realm, name, creds_encrypted, last_checkin, credits, status "
             "FROM accounts WHERE id = ?",
             (account_id,)
         ).fetchone()
-    row = _rows([found])[0] if found else None
+    row = db_adapter.normalize_rows([found], mysql)[0] if found else None
 
     if not row:
         return {"ok": False, "error": f"Account #{account_id} not found"}
@@ -419,11 +379,12 @@ def checkin_account(ledger, account_id: int, mock_result: dict | None = None) ->
     # 严格守则：业务成功才更新 last_checkin
     if ok:
         new_credits = float(credits_gain) if credits_gain is not None else old_credits
-        with _db(ledger) as con:
+        with db_adapter.transact(ledger.connect()) as con:
             con.execute(
                 "UPDATE accounts SET last_checkin = ?, credits = ?, status = 'active', updated_at = ? WHERE id = ?",
                 (now, new_credits, now, acc_id)
             )
+            con.commit()
         return {
             "ok": True,
             "id": acc_id,
@@ -436,11 +397,12 @@ def checkin_account(ledger, account_id: int, mock_result: dict | None = None) ->
     else:
         # 失败不改写 last_checkin
         status_flag = "need_refresh" if res.get("status") == "NEED_REFRESH" else "checkin_failed"
-        with _db(ledger) as con:
+        with db_adapter.transact(ledger.connect()) as con:
             con.execute(
                 "UPDATE accounts SET status = ?, updated_at = ? WHERE id = ?",
                 (status_flag, now, acc_id)
             )
+            con.commit()
         return {
             "ok": False,
             "id": acc_id,

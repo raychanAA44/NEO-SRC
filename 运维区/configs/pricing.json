@@ -1298,7 +1298,7 @@
           "out": 6.0
         },
         "mimo-v2.6-flash": {
-          "source": "离线价格文档（D:\\租界\\..\\01-模型费率与折扣）",
+          "source": "离线价格文档（examples/model-pricing-reference.md）",
           "source_url": "https://tokenharbor.ai/models",
           "source_api": "tokenharbor/v1/models",
           "checked_at": "2026-10-14 17:20",
